@@ -1,0 +1,46 @@
+﻿
+Microsoft Visual Studio Solution File, Format Version 12.00
+# Visual Studio 2013
+VisualStudioVersion = 12.0.31101.0
+MinimumVisualStudioVersion = 10.0.40219.1
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "AkkaPlayground", "AkkaPlayground\AkkaPlayground.csproj", "{4DCB508A-66AB-46A1-A8B4-F7EC7AE880E0}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "AkkaPlayground.Core", "AkkaPlayground.Core\AkkaPlayground.Core.csproj", "{B9BF7BB9-DEAC-4075-A578-D2B5DE821B4F}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "AkkaPlayground.RemoteTarget", "AkkaPlayground.RemoteTarget\AkkaPlayground.RemoteTarget.csproj", "{C051D983-153C-4162-87FF-4384C34230BE}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "AkkaPlayground.Messages", "AkkaPlayground.Messages\AkkaPlayground.Messages.csproj", "{F390587E-D65A-4096-8395-09446E78C795}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "AkkaPlaygrond.Web", "AkkaPlaygrond.Web\AkkaPlaygrond.Web.csproj", "{28763CC4-155A-4E07-93F0-FEDD7995E374}"
+EndProject
+Global
+	GlobalSection(SolutionConfigurationPlatforms) = preSolution
+		Debug|Any CPU = Debug|Any CPU
+		Release|Any CPU = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(ProjectConfigurationPlatforms) = postSolution
+		{4DCB508A-66AB-46A1-A8B4-F7EC7AE880E0}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{4DCB508A-66AB-46A1-A8B4-F7EC7AE880E0}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{4DCB508A-66AB-46A1-A8B4-F7EC7AE880E0}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{4DCB508A-66AB-46A1-A8B4-F7EC7AE880E0}.Release|Any CPU.Build.0 = Release|Any CPU
+		{B9BF7BB9-DEAC-4075-A578-D2B5DE821B4F}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{B9BF7BB9-DEAC-4075-A578-D2B5DE821B4F}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{B9BF7BB9-DEAC-4075-A578-D2B5DE821B4F}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{B9BF7BB9-DEAC-4075-A578-D2B5DE821B4F}.Release|Any CPU.Build.0 = Release|Any CPU
+		{C051D983-153C-4162-87FF-4384C34230BE}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{C051D983-153C-4162-87FF-4384C34230BE}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{C051D983-153C-4162-87FF-4384C34230BE}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{C051D983-153C-4162-87FF-4384C34230BE}.Release|Any CPU.Build.0 = Release|Any CPU
+		{F390587E-D65A-4096-8395-09446E78C795}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{F390587E-D65A-4096-8395-09446E78C795}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{F390587E-D65A-4096-8395-09446E78C795}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{F390587E-D65A-4096-8395-09446E78C795}.Release|Any CPU.Build.0 = Release|Any CPU
+		{28763CC4-155A-4E07-93F0-FEDD7995E374}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{28763CC4-155A-4E07-93F0-FEDD7995E374}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{28763CC4-155A-4E07-93F0-FEDD7995E374}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{28763CC4-155A-4E07-93F0-FEDD7995E374}.Release|Any CPU.Build.0 = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(SolutionProperties) = preSolution
+		HideSolutionNode = FALSE
+	EndGlobalSection
+EndGlobal

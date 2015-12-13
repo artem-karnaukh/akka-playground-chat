@@ -1,0 +1,1030 @@
+<?xml version="1.0"?>
+<doc>
+    <assembly>
+        <name>Akka.Persistence</name>
+    </assembly>
+    <members>
+        <member name="P:Akka.Persistence.IWithPersistenceId.PersistenceId">
+            <summary>
+            Identifier of the persistent identity for which messages should be replayed.
+            </summary>
+        </member>
+        <member name="P:Akka.Persistence.IPersistentIdentity.JournalPluginId">
+            <summary>
+            Configuration identifier of the journal plugin servicing current persistent actor or view.
+            When empty, looks in [akka.persistence.journal.plugin] to find configuration entry path.
+            Otherwise uses string value as an absolute path to the journal configuration entry.
+            </summary>
+        </member>
+        <member name="P:Akka.Persistence.IPersistentIdentity.SnapshotPluginId">
+            <summary>
+            Configuration identifier of the snapshot store plugin servicing current persistent actor or view.
+            When empty, looks in [akka.persistence.snapshot-store.plugin] to find configuration entry path.
+            Otherwise uses string value as an absolute path to the snapshot store configuration entry.
+            </summary>
+        </member>
+        <member name="F:Akka.Persistence.Eventsourced._pendingStashingPersistInvocations">
+            Used instead of iterating `pendingInvocations` in order to check if safe to revert to processing commands
+        </member>
+        <member name="F:Akka.Persistence.Eventsourced._pendingInvocations">
+            Holds user-supplied callbacks for persist/persistAsync calls
+        </member>
+        <member name="M:Akka.Persistence.Eventsourced.ReceiveRecover(System.Object)">
+            <summary> 
+            Recovery handler that receives persistent events during recovery. If a state snapshot has been captured and saved, 
+            this handler will receive a <see cref="T:Akka.Persistence.SnapshotOffer"/> message followed by events that are younger than offer itself.
+            
+            This handler must be a pure function (no side effects allowed), it should not perform any actions that may fail. 
+            If recovery fails this actor will be stopped. This can be customized in <see cref="T:Akka.Persistence.RecoveryFailure"/>. 
+            </summary>
+        </member>
+        <member name="M:Akka.Persistence.Eventsourced.ReceiveCommand(System.Object)">
+            <summary>
+            Command handler. Typically validates commands against current state - possibly by communicating with other actors.
+            On successful validation, one or more events are derived from command and persisted.
+            </summary>
+            <param name="message"></param>
+            <returns></returns>
+        </member>
+        <member name="M:Akka.Persistence.Eventsourced.Persist``1(``0,System.Action{``0})">
+            <summary> 
+            Asynchronously persists an <paramref name="event"/>. On successful persistence, the <paramref name="handler"/>
+            is called with the persisted event. This method guarantees that no new commands will be received by a persistent actor
+            between a call to <see cref="M:Akka.Persistence.Eventsourced.Persist``1(``0,System.Action{``0})"/> and execution of it's handler. It also
+            holds multiple persist calls per received command. Internally this is done by stashing.
+            
+            
+            An event <paramref name="handler"/> may close over eventsourced actor state and modify it. Sender of the persistent event
+            is considered a sender of the corresponding command. That means, one can respond to sender from within an event handler.
+            
+            
+            Within an event handler, applications usually update persistent actor state using 
+            persisted event data, notify listeners and reply to command senders.
+            
+            
+            If persistence of an event fails, the persistent actor will be stopped. 
+            This can be customized by handling <see cref="T:Akka.Persistence.PersistenceFailure"/> in <see cref="M:Akka.Persistence.Eventsourced.ReceiveCommand(System.Object)"/> method. 
+            </summary>
+        </member>
+        <member name="M:Akka.Persistence.Eventsourced.Persist``1(System.Collections.Generic.IEnumerable{``0},System.Action{``0})">
+            <summary>
+            Asynchronously persists series of <paramref name="events"/> in specified order.
+            This is equivalent of multiple calls of <see cref="M:Akka.Persistence.Eventsourced.Persist``1(``0,System.Action{``0})"/> calls.
+            </summary>
+        </member>
+        <member name="M:Akka.Persistence.Eventsourced.PersistAsync``1(``0,System.Action{``0})">
+            <summary> 
+            Asynchronously persists an <paramref name="event"/>. On successful persistence, the <paramref name="handler"/>
+            is called with the persisted event. Unlike <see cref="M:Akka.Persistence.Eventsourced.Persist``1(``0,System.Action{``0})"/> method,
+            this one will continue to receive incoming commands between calls and executing it's event <paramref name="handler"/>.
+            
+            
+            This version should be used in favor of <see cref="M:Akka.Persistence.Eventsourced.Persist``1(``0,System.Action{``0})"/> 
+            method when throughput is more important that commands execution precedence.
+            
+            
+            An event <paramref name="handler"/> may close over eventsourced actor state and modify it. Sender of the persistent event
+            is considered a sender of the corresponding command. That means, one can respond to sender from within an event handler.
+            
+            
+            Within an event handler, applications usually update persistent actor state using 
+            persisted event data, notify listeners and reply to command senders.
+            
+            
+            If persistence of an event fails, the persistent actor will be stopped. 
+            This can be customized by handling <see cref="T:Akka.Persistence.PersistenceFailure"/> in <see cref="M:Akka.Persistence.Eventsourced.ReceiveCommand(System.Object)"/> method. 
+            </summary>
+        </member>
+        <member name="M:Akka.Persistence.Eventsourced.PersistAsync``1(System.Collections.Generic.IEnumerable{``0},System.Action{``0})">
+            <summary>
+            Asynchronously persists series of <paramref name="events"/> in specified order.
+            This is equivalent of multiple calls of <see cref="M:Akka.Persistence.Eventsourced.PersistAsync``1(``0,System.Action{``0})"/> calls.
+            </summary>
+        </member>
+        <member name="M:Akka.Persistence.Eventsourced.Defer``1(``0,System.Action{``0})">
+            <summary>
+            
+            Defer the <paramref name="handler"/> execution until all pending handlers have been executed. 
+            If <see cref="M:Akka.Persistence.Eventsourced.PersistAsync``1(``0,System.Action{``0})"/> was invoked before defer, 
+            the corresponding handlers will be invoked in the same order as they were registered in.
+            
+            
+            This call will NOT result in persisted event. If it should be possible to replay use persist method instead.
+            If there are not awaiting persist handler calls, the <paramref name="handler"/> will be invoiced immediately.
+            
+            </summary>
+        </member>
+        <member name="M:Akka.Persistence.Eventsourced.OnReplaySuccess">
+            <summary>
+            Called whenever a message replay succeeds.
+            </summary>
+        </member>
+        <member name="M:Akka.Persistence.Eventsourced.OnReplayFailure(System.Exception)">
+            <summary>
+            Called whenever a message replay fails.
+            </summary>
+            <param name="reason">Reason of failure</param>
+        </member>
+        <member name="M:Akka.Persistence.Eventsourced.RecoveryPending">
+            <summary>
+            Initial state, waits for <see cref="T:Akka.Persistence.Recover"/> request, and then submits a <see cref="M:Akka.Persistence.Eventsourced.LoadSnapshot(System.String,Akka.Persistence.SnapshotSelectionCriteria,System.Int64)"/> request to the snapshot
+            store and changes to <see cref="M:Akka.Persistence.Eventsourced.RecoveryStarted(System.Int64)"/> state. All incoming messages except <see cref="T:Akka.Persistence.Recover"/> are stashed.
+            </summary>
+            <returns></returns>
+        </member>
+        <member name="M:Akka.Persistence.Eventsourced.RecoveryStarted(System.Int64)">
+            <summary>
+            Processes a loaded snapshot, if any. A loaded snapshot is offered with a <see cref="T:Akka.Persistence.SnapshotOffer"/> 
+            message to the actor's <see cref="M:Akka.Persistence.Eventsourced.ReceiveRecover(System.Object)"/>. Then initiates a message replay, either starting 
+            from the loaded snapshot or from scratch, and switches to <see cref="M:Akka.Persistence.Eventsourced.ReplayStarted(Akka.Actor.Receive)"/> state. 
+            All incoming messages are stashed.
+            </summary>
+            <param name="maxReplays">Maximum number of messages to replay</param>
+        </member>
+        <member name="M:Akka.Persistence.Eventsourced.ReplayStarted(Akka.Actor.Receive)">
+            <summary>
+            Processes replayed messages, if any. The actor's <see cref="M:Akka.Persistence.Eventsourced.ReceiveRecover(System.Object)"/> is invoked with the replayed events.
+            
+            If replay succeeds it switches to <see cref="M:Akka.Persistence.Eventsourced.Initializing(Akka.Actor.Receive)"/> state and requests the highest stored sequence
+            number from the journal. Otherwise RecoveryFailure is emitted.
+            If replay succeeds the `onReplaySuccess` callback method is called, otherwise `onReplayFailure`.
+            
+            If processing of a replayed event fails, the exception is caught and
+            stored for being thrown later and state is changed to <see cref="!:RecoveryFailed"/>.
+            
+            All incoming messages are stashed.
+            </summary>
+        </member>
+        <member name="M:Akka.Persistence.Eventsourced.ReplayFailed(System.Exception,System.Object)">
+            <summary>
+            Processes all remaining replayed messages and changes to <see cref="M:Akka.Persistence.Eventsourced.PrepareRestart(System.Exception)"/>.
+            Message that caused and exception during replay, is re-added to the mailbox and re-received
+            in <see cref="M:Akka.Persistence.Eventsourced.PrepareRestart(System.Exception)"/> state.
+            </summary>
+        </member>
+        <member name="M:Akka.Persistence.Eventsourced.PrepareRestart(System.Exception)">
+            <summary>
+            Re-receives replayed message that caused an exception and re-throws the <paramref name="cause"/>.
+            </summary>
+        </member>
+        <member name="M:Akka.Persistence.Eventsourced.Initializing(Akka.Actor.Receive)">
+            <summary>
+            Processes messages with the highest stored sequence number in the journal and then switches to
+            <see cref="M:Akka.Persistence.Eventsourced.ProcessingCommands"/> state. All other messages are stashed.
+            </summary>
+        </member>
+        <member name="M:Akka.Persistence.Eventsourced.ProcessingCommands">
+            <summary>
+            If event persistence is pending after processing a command, event persistence 
+            is triggered and the state changes to <see cref="M:Akka.Persistence.Eventsourced.PersistingEvents"/>.
+            </summary>
+        </member>
+        <member name="M:Akka.Persistence.Eventsourced.PersistingEvents">
+            <summary>
+            Remains until pending events are persisted and then changes state to <see cref="M:Akka.Persistence.Eventsourced.ProcessingCommands"/>.
+            Only events to be persisted are processed. All other messages are stashed internally.
+            </summary>
+        </member>
+        <member name="P:Akka.Persistence.Eventsourced.PersistenceId">
+            <summary>
+            Id of the persistent entity for which messages should be replayed.
+            </summary>
+        </member>
+        <member name="P:Akka.Persistence.Eventsourced.SnapshotterId">
+            <summary>
+            Returns <see cref="P:Akka.Persistence.Eventsourced.PersistenceId"/>.
+            </summary>
+        </member>
+        <member name="P:Akka.Persistence.Eventsourced.IsRecovering">
+            <summary>
+            Returns true if this persistent entity is currently recovering.
+            </summary>
+        </member>
+        <member name="P:Akka.Persistence.Eventsourced.IsRecoveryFinished">
+            <summary>
+            Returns true if this persistent entity has successfully finished recovery.
+            </summary>
+        </member>
+        <member name="P:Akka.Persistence.Eventsourced.LastSequenceNr">
+            <summary>
+            Highest received sequence number so far or `0L` if this actor 
+            hasn't replayed  or stored any persistent events yet.
+            </summary>
+        </member>
+        <member name="P:Akka.Persistence.Eventsourced.SnapshotSequenceNr">
+            <summary>
+            Returns <see cref="P:Akka.Persistence.Eventsourced.LastSequenceNr"/>
+            </summary>
+        </member>
+        <member name="T:Akka.Persistence.AtLeastOnceDeliverySnapshot">
+            <summary>
+            Snapshot of a current <see cref="T:Akka.Persistence.AtLeastOnceDeliveryActor"/> state. Can be retrieved with
+            <see cref="M:Akka.Persistence.AtLeastOnceDeliveryActor.GetDeliverySnapshot"/> and saved with <see cref="M:Akka.Persistence.Eventsourced.SaveSnapshot(System.Object)"/>.
+            During recovery the snapshot received in <see cref="T:Akka.Persistence.SnapshotOffer"/> should be sent with 
+            <see cref="M:Akka.Persistence.AtLeastOnceDeliveryActor.SetDeliverySnapshot(Akka.Persistence.AtLeastOnceDeliverySnapshot)"/>.
+            </summary>
+        </member>
+        <member name="T:Akka.Persistence.UnconfirmedWarning">
+            <summary>
+            <see cref="T:Akka.Persistence.UnconfirmedWarning"/> message should be sent after 
+            <see cref="P:Akka.Persistence.AtLeastOnceDeliveryActor.UnconfirmedDeliveryAttemptsToWarn"/> limit will be reached.
+            </summary>
+        </member>
+        <member name="T:Akka.Persistence.UnconfirmedDelivery">
+            <summary>
+            <see cref="T:Akka.Persistence.UnconfirmedDelivery"/> contains details about unconfirmed messages.
+            It's included inside <see cref="T:Akka.Persistence.UnconfirmedWarning"/> and <see cref="T:Akka.Persistence.AtLeastOnceDeliverySnapshot"/>.
+            </summary>
+        </member>
+        <member name="T:Akka.Persistence.MaxUnconfirmedMessagesExceededException">
+            <summary>
+            An exception thrown, when <see cref="P:Akka.Persistence.AtLeastOnceDeliveryActor.MaxUnconfirmedMessages"/> threshold has been exceeded.
+            </summary>
+        </member>
+        <member name="T:Akka.Persistence.AtLeastOnceDeliveryActor">
+            <summary>
+            Persistent actor type, that sends messages with at-least-once delivery semantics to it's destinations.
+            It takes care of re-sending messages when they haven't been confirmed withing expected timeout. The same 
+            message may be send twice or more to the same destination as a result of possible resends.
+            
+            Use a <see cref="M:Akka.Persistence.AtLeastOnceDeliveryActor.Deliver(Akka.Actor.ActorPath,System.Func{System.Int64,System.Object})"/> method to send a message to a destination. Call the <see cref="M:Akka.Persistence.AtLeastOnceDeliveryActor.ConfirmDelivery(System.Int64)"/>
+            method once destination has replied with a confirmation message. The interval between redelivery attempts
+            can be defined with <see cref="P:Akka.Persistence.AtLeastOnceDeliveryActor.RedeliverInterval"/>. After a number of delivery attempts an 
+            <see cref="T:Akka.Persistence.UnconfirmedWarning"/> message will be sent to <see cref="P:Akka.Actor.ActorBase.Self"/>. The resending will continue,
+            but you may choose <see cref="M:Akka.Persistence.AtLeastOnceDeliveryActor.ConfirmDelivery(System.Int64)"/> to cancel resending.
+            
+            This actor type has state consisting of unconfirmed messages and a sequence number. It doesn't store it by
+            itself, so you must persist corresponding events so that state can be restored by calling the same 
+            delivery-related methods during recovery phase of the persistent actor. During recovery calls to 
+            <see cref="M:Akka.Persistence.AtLeastOnceDeliveryActor.Deliver(Akka.Actor.ActorPath,System.Func{System.Int64,System.Object})"/> won't send out a message, but it will be sent later if no <see cref="M:Akka.Persistence.AtLeastOnceDeliveryActor.ConfirmDelivery(System.Int64)"/>
+            call was performed.
+            
+            Support for snapshot is provided by get and set delivery snapshot methods. These snapshots contains full
+            delivery state including unconfirmed messages. For custom snapshots remember to include those delivery ones.
+            </summary>
+        </member>
+        <member name="T:Akka.Persistence.PersistentActor">
+            <summary>
+            Persistent actor - can be used to implement command or eventsourcing.
+            </summary>
+        </member>
+        <member name="M:Akka.Persistence.AtLeastOnceDeliveryActor.Init">
+            <summary>
+            Invoked after actor has been created and all of it's fields have been initialized.
+            </summary>
+        </member>
+        <member name="M:Akka.Persistence.AtLeastOnceDeliveryActor.Deliver(Akka.Actor.ActorPath,System.Func{System.Int64,System.Object})">
+            <summary>
+            Send the message created with <paramref name="deliveryMessageMapper"/> function to the <see cref="!:destination"/>
+            actor. It will retry sending the message until the delivery is confirmed with <see cref="M:Akka.Persistence.AtLeastOnceDeliveryActor.ConfirmDelivery(System.Int64)"/>.
+            Correlation between these two methods is performed by delivery id - parameter of <see cref="!:deliveryMessageMapper"/>.
+            Usually it's passed inside the message to the destination, which replies with the message having the same id.
+            
+            During recovery this method won't send out any message, but it will be sent later until corresponding 
+            <see cref="M:Akka.Persistence.AtLeastOnceDeliveryActor.ConfirmDelivery(System.Int64)"/> method will be invoked.
+            </summary>
+            <exception cref="T:Akka.Persistence.MaxUnconfirmedMessagesExceededException">
+            Thrown when <see cref="P:Akka.Persistence.AtLeastOnceDeliveryActor.UnconfirmedCount"/> is greater than or equal to <see cref="P:Akka.Persistence.AtLeastOnceDeliveryActor.MaxUnconfirmedMessages"/>.
+            </exception>
+        </member>
+        <member name="M:Akka.Persistence.AtLeastOnceDeliveryActor.ConfirmDelivery(System.Int64)">
+            <summary>
+            Call this method to confirm that message with <paramref name="deliveryId"/> has been sent
+            or to cancel redelivery attempts.
+            </summary>
+            <returns>True if delivery was confirmed first time, false for duplicate confirmations.</returns>
+        </member>
+        <member name="M:Akka.Persistence.AtLeastOnceDeliveryActor.GetDeliverySnapshot">
+            <summary>
+            Returns full state of the current delivery actor. Could be saved using <see cref="M:Akka.Persistence.Eventsourced.SaveSnapshot(System.Object)"/> method.
+            During recovery a snapshot received in <see cref="T:Akka.Persistence.SnapshotOffer"/> should be set with <see cref="M:Akka.Persistence.AtLeastOnceDeliveryActor.SetDeliverySnapshot(Akka.Persistence.AtLeastOnceDeliverySnapshot)"/>.
+            </summary>
+        </member>
+        <member name="M:Akka.Persistence.AtLeastOnceDeliveryActor.SetDeliverySnapshot(Akka.Persistence.AtLeastOnceDeliverySnapshot)">
+            <summary>
+            If snapshot from <see cref="M:Akka.Persistence.AtLeastOnceDeliveryActor.GetDeliverySnapshot"/> was saved, it will be received during recovery phase in a
+            <see cref="T:Akka.Persistence.SnapshotOffer"/> message and should be set with this method.
+            </summary>
+            <param name="snapshot"></param>
+        </member>
+        <member name="P:Akka.Persistence.AtLeastOnceDeliveryActor.RedeliverInterval">
+            <summary>
+            Interval between redelivery attempts.
+            </summary>
+        </member>
+        <member name="P:Akka.Persistence.AtLeastOnceDeliveryActor.RedeliveryBurstLimit">
+            <summary>
+            Maximum number of unconfirmed messages that will be sent at each redelivery burst. This is to help to 
+            prevent overflowing amount of messages to be sent at once, for eg. when destination cannot be reached for a long time.
+            </summary>
+        </member>
+        <member name="P:Akka.Persistence.AtLeastOnceDeliveryActor.UnconfirmedDeliveryAttemptsToWarn">
+            <summary>
+            After this number of delivery attempts a <see cref="T:Akka.Persistence.UnconfirmedWarning"/> message will be sent to <see cref="P:Akka.Actor.ActorBase.Self"/>.
+            The count is reset after restart.
+            </summary>
+        </member>
+        <member name="P:Akka.Persistence.AtLeastOnceDeliveryActor.MaxUnconfirmedMessages">
+            <summary>
+            Maximum number of unconfirmed messages, that this actor is allowed to hold in the memory. When this 
+            number is exceed, <see cref="M:Akka.Persistence.AtLeastOnceDeliveryActor.Deliver(Akka.Actor.ActorPath,System.Func{System.Int64,System.Object})"/> will throw <see cref="T:Akka.Persistence.MaxUnconfirmedMessagesExceededException"/>
+            instead of accepting messages.
+            </summary>
+        </member>
+        <member name="P:Akka.Persistence.AtLeastOnceDeliveryActor.UnconfirmedCount">
+            <summary>
+            Number of messages, that have not been confirmed yet.
+            </summary>
+        </member>
+        <member name="T:Akka.Persistence.StashingHandlerInvocation">
+            <summary>
+            Forces actor to stash incoming commands until all invocations are handled.
+            </summary>
+        </member>
+        <member name="T:Akka.Persistence.AsyncHandlerInvocation">
+            <summary>
+            Unlike <see cref="T:Akka.Persistence.StashingHandlerInvocation"/> this one does not force actor to stash commands.
+            Originates from <see cref="M:Akka.Persistence.Eventsourced.PersistAsync``1(``0,System.Action{``0})"/> 
+            or <see cref="M:Akka.Persistence.Eventsourced.Defer``1(``0,System.Action{``0})"/> method calls.
+            </summary>
+        </member>
+        <member name="M:Akka.Persistence.LinkedListExtensions.Pop``1(System.Collections.Generic.LinkedList{``0})">
+            <summary>
+            Removes first element from the list and returns it or returns default value if list was empty.
+            </summary>
+        </member>
+        <member name="M:Akka.Persistence.InternalExtensions.NotifyAboutReplayCompletion(System.Threading.Tasks.Task,Akka.Actor.IActorRef)">
+            <summary>
+            Sends <paramref name="task"/> result to the <paramref name="receiver"/> in form of <see cref="T:Akka.Persistence.ReplayMessagesSuccess"/> 
+            or <see cref="T:Akka.Persistence.ReplayMessagesFailure"/> depending on the success or failure of the task.
+            </summary>
+        </member>
+        <member name="M:Akka.Persistence.InternalExtensions.EnqueueMessageFirst(Akka.Actor.IActorContext,System.Object)">
+            <summary>
+            Enqueues provided <paramref name="message"/> at the beginning of the internal actor cell mailbox message queue.
+            Requires current actor to use unbounded deque-based message queue. It will fail otherwise.
+            </summary>
+        </member>
+        <member name="T:Akka.Persistence.PersistenceFailure">
+            <summary>
+            Sent to a <see cref="T:Akka.Persistence.PersistentActor"/> if a journal fails to write a persistent message. 
+            If not handled, an <see cref="T:Akka.Actor.ActorKilledException"/> is thrown by that persistent actor.
+            </summary>
+        </member>
+        <member name="P:Akka.Persistence.PersistenceFailure.Payload">
+            <summary>
+            Payload of the persistent message.
+            </summary>
+        </member>
+        <member name="P:Akka.Persistence.PersistenceFailure.SequenceNr">
+            <summary>
+            Sequence number of the persistent message.
+            </summary>
+        </member>
+        <member name="P:Akka.Persistence.PersistenceFailure.Cause">
+            <summary>
+            Failure cause.
+            </summary>
+        </member>
+        <member name="T:Akka.Persistence.RecoveryFailure">
+            <summary>
+            Sent to a <see cref="T:Akka.Persistence.PersistentActor"/> if a journal fails to replay messages or fetch that 
+            persistent actor's highest sequence number. If not handled, the actor will be stopped.
+            </summary>
+        </member>
+        <member name="T:Akka.Persistence.Recover">
+            <summary>
+            Instructs a <see cref="T:Akka.Persistence.PersistentActor"/> to recover itself. Recovery will start from the first previously saved snapshot
+            matching provided <see cref="P:Akka.Persistence.Recover.FromSnapshot"/> selection criteria, if any. Otherwise it will replay all journaled messages.
+            
+            If recovery starts from a snapshot, the <see cref="T:Akka.Persistence.PersistentActor"/> is offered with that snapshot wrapped in 
+            <see cref="T:Akka.Persistence.SnapshotOffer"/> message, followed by replayed messages, if any, that are younger than the snapshot, up to the
+            specified upper sequence number bound (<see cref="P:Akka.Persistence.Recover.ToSequenceNr"/>).
+            </summary>
+        </member>
+        <member name="P:Akka.Persistence.Recover.FromSnapshot">
+            <summary>
+            Criteria for selecting a saved snapshot from which recovery should start. Default is del youngest snapshot.
+            </summary>
+        </member>
+        <member name="P:Akka.Persistence.Recover.ToSequenceNr">
+            <summary>
+            Upper, inclusive sequence number bound. Default is no upper bound.
+            </summary>
+        </member>
+        <member name="P:Akka.Persistence.Recover.ReplayMax">
+            <summary>
+            Maximum number of messages to replay. Default is no limit.
+            </summary>
+        </member>
+        <member name="T:Akka.Persistence.UntypedPersistentActor">
+            <summary>
+            Persistent actor - can be used to implement command or eventsourcing.
+            </summary>
+        </member>
+        <member name="M:Akka.Persistence.UntypedPersistentActor.Become(Akka.Actor.UntypedReceive)">
+            <summary>
+            Changes the actor's behavior and replaces the current receive handler with the specified handler.
+            </summary>
+            <param name="receive">The new message handler.</param>
+        </member>
+        <member name="M:Akka.Persistence.UntypedPersistentActor.BecomeStacked(Akka.Actor.UntypedReceive)">
+            <summary>
+            Changes the actor's behavior and replaces the current receive handler with the specified handler.
+            The current handler is stored on a stack, and you can revert to it by calling <see cref="!:IUntypedActorContext.UnbecomeStacked"/>
+            <remarks>Please note, that in order to not leak memory, make sure every call to <see cref="M:Akka.Persistence.UntypedPersistentActor.BecomeStacked(Akka.Actor.UntypedReceive)"/>
+            is matched with a call to <see cref="!:IUntypedActorContext.UnbecomeStacked"/>.</remarks>
+            </summary>
+            <param name="receive">The new message handler.</param>
+        </member>
+        <member name="M:Akka.Persistence.ReceivePersistentActor.PrepareConfigureMessageHandlers">
+            <summary>
+            Creates and pushes a new MatchBuilder
+            </summary>
+        </member>
+        <member name="T:Akka.Persistence.PersistentView">
+            <summary>
+            A view replicates the persistent message stream of a <see cref="T:Akka.Persistence.PersistentActor"/>. Implementation classes receive
+            the message stream directly from the Journal. These messages can be processed to update internal state
+            in order to maintain an (eventual consistent) view of the state of the corresponding persistent actor. A
+            persistent view can also run on a different node, provided that a replicated journal is used.
+            
+            Implementation classes refer to a persistent actors' message stream by implementing `persistenceId`
+            with the corresponding (shared) identifier value.
+            
+            Views can also store snapshots of internal state by calling [[autoUpdate]]. The snapshots of a view
+            are independent of those of the referenced persistent actor. During recovery, a saved snapshot is offered
+            to the view with a <see cref="T:Akka.Persistence.SnapshotOffer"/> message, followed by replayed messages, if any, that are younger
+            than the snapshot. Default is to offer the latest saved snapshot.
+            
+            By default, a view automatically updates itself with an interval returned by `autoUpdateInterval`.
+            This method can be overridden by implementation classes to define a view instance-specific update
+            interval. The default update interval for all views of an actor system can be configured with the
+            `akka.persistence.view.auto-update-interval` configuration key. Applications may trigger additional
+            view updates by sending the view <see cref="T:Akka.Persistence.Update"/> requests. See also methods
+            </summary>
+        </member>
+        <member name="T:Akka.Persistence.ISnapshotter">
+            <summary>
+            Snapshot API on top of the internal snapshot protocol.
+            </summary>
+        </member>
+        <member name="M:Akka.Persistence.ISnapshotter.LoadSnapshot(System.String,Akka.Persistence.SnapshotSelectionCriteria,System.Int64)">
+            <summary>
+            Orders to load a snapshots related to persistent actor identified by <paramref name="persistenceId"/>
+            that match specified <paramref name="criteria"/> up to provided <paramref name="toSequenceNr"/> upper, inclusive bound.
+            </summary>
+        </member>
+        <member name="M:Akka.Persistence.ISnapshotter.SaveSnapshot(System.Object)">
+            <summary>
+            Saves <paramref name="snapshot"/> of current <see cref="T:Akka.Persistence.ISnapshotter"/> state.
+            If saving succeeds, this snapshotter will receive a <see cref="T:Akka.Persistence.SaveSnapshotSuccess"/> message,
+            otherwise <see cref="T:Akka.Persistence.SaveSnapshotFailure"/> message.
+            </summary>
+        </member>
+        <member name="M:Akka.Persistence.ISnapshotter.DeleteSnapshot(System.Int64,System.DateTime)">
+            <summary>
+            Deletes snapshot identified by <paramref name="sequenceNr"/> and <paramref name="timestamp"/>.
+            </summary>
+        </member>
+        <member name="M:Akka.Persistence.ISnapshotter.DeleteSnapshots(Akka.Persistence.SnapshotSelectionCriteria)">
+            <summary>
+            Deletes all snapshots matching provided <paramref name="criteria"/>.
+            </summary>
+            <param name="criteria"></param>
+        </member>
+        <member name="P:Akka.Persistence.ISnapshotter.SnapshotterId">
+            <summary>
+            Snapshotter id.
+            </summary>
+        </member>
+        <member name="P:Akka.Persistence.ISnapshotter.SnapshotSequenceNr">
+            <summary>
+            Incrementable sequence number to use when taking a snapshot.
+            </summary>
+        </member>
+        <member name="M:Akka.Persistence.PersistentView.RecoveryPending">
+            <summary>
+            Initial state. Waits for <see cref="T:Akka.Persistence.Recover"/> request, and then submits a <see cref="M:Akka.Persistence.PersistentView.LoadSnapshot(System.String,Akka.Persistence.SnapshotSelectionCriteria,System.Int64)"/>
+            request to snapshot store and then changes to <see cref="M:Akka.Persistence.PersistentView.RecoveryStarted(System.Int64)"/> state. All other message types are stashed.
+            </summary>
+        </member>
+        <member name="M:Akka.Persistence.PersistentView.RecoveryStarted(System.Int64)">
+            <summary>
+            Processes a loaded snapshot, if any. A loaded snapshot is offered to view via <see cref="T:Akka.Persistence.SnapshotOffer"/>
+            message in <see cref="!:PersistentActor.ReceiveRecover"/> method. Then initiates a message replay, either 
+            starting from the loaded snapshot or from scratch. Then switches to <see cref="M:Akka.Persistence.PersistentView.ReplayStarted(System.Boolean)"/> state.
+            
+            All incoming messages are stashed.
+            </summary>
+        </member>
+        <member name="M:Akka.Persistence.PersistentView.ReplayStarted(System.Boolean)">
+            <summary>
+            Processes replayed message, if any. The actor's <see cref="!:PersistentActor.ReceiveRecover"/> is invoked 
+            with the replayed events.
+            
+            If replay succeeds it switches to <see cref="!:Initialized"/> state and requests the highest stored sequence
+            number from the journal and <see cref="!:OnReplaySuccess"/> is called. Otherwise the <see cref="T:Akka.Persistence.RecoveryFailure"/> 
+            is emitted with <see cref="!:OnReplayFailure"/> being called.
+            
+            If processing fails, the exception is caught and stored for being thrown later and the state is changed
+            to <see cref="!:RecoveryFailed"/>.
+            
+            All incoming messages are stashed.
+            </summary>
+        </member>
+        <member name="M:Akka.Persistence.PersistentView.OnReplayComplete(System.Boolean)">
+            <summary>
+            Switches to <see cref="M:Akka.Persistence.PersistentView.Idle"/> state and schedules the next update if <see cref="P:Akka.Persistence.PersistentView.IsAutoUpdate"/> flag is set.
+            </summary>
+        </member>
+        <member name="M:Akka.Persistence.PersistentView.ReplayFailed(System.Exception,System.Object)">
+            <summary>
+            Consumes remaining replayed messages and switches to <see cref="!:PrepareRestart"/> state. Message that
+            caused an exception during replay is re-added to the mailbox and re-received in <see cref="!:PrepareRestart"/> state.
+            </summary>
+        </member>
+        <member name="M:Akka.Persistence.PersistentView.Idle">
+            <summary>
+            When receiving an <see cref="T:Akka.Persistence.Update"/> event, switches to <see cref="M:Akka.Persistence.PersistentView.ReplayStarted(System.Boolean)"/> state
+            and triggers an incremental message replay. For any other message invokes actor default behavior.
+            </summary>
+            <returns></returns>
+        </member>
+        <member name="M:Akka.Persistence.PersistentView.LoadSnapshot(System.String,Akka.Persistence.SnapshotSelectionCriteria,System.Int64)">
+            <summary>
+            Orders to load a snapshots related to persistent actor identified by <paramref name="persistenceId"/>
+            that match specified <paramref name="criteria"/> up to provided <paramref name="toSequenceNr"/> upper, inclusive bound.
+            </summary>
+        </member>
+        <member name="M:Akka.Persistence.PersistentView.SaveSnapshot(System.Object)">
+            <summary>
+            Saves a <paramref name="snapshot"/> of this actor's state. If snapshot succeeds, this actor will
+            receive a <see cref="T:Akka.Persistence.SaveSnapshotSuccess"/>, otherwise a <see cref="T:Akka.Persistence.SaveSnapshotFailure"/> message.
+            </summary>
+        </member>
+        <member name="M:Akka.Persistence.PersistentView.DeleteSnapshot(System.Int64,System.DateTime)">
+            <summary>
+            Deletes a snapshot identified by <paramref name="sequenceNr"/> and <paramref name="timestamp"/>.
+            </summary>
+        </member>
+        <member name="M:Akka.Persistence.PersistentView.DeleteSnapshots(Akka.Persistence.SnapshotSelectionCriteria)">
+            <summary>
+            Delete all snapshots matching <paramref name="criteria"/>.
+            </summary>
+        </member>
+        <member name="P:Akka.Persistence.PersistentView.ViewId">
+            <summary>
+            Used as identifier for snapshots performed by this <see cref="T:Akka.Persistence.PersistentView"/>. This allows the View to keep 
+            separate snapshots of data than the <see cref="T:Akka.Persistence.PersistentActor"/> originating the message stream.
+            
+            The usual case is to have a different identifiers for <see cref="P:Akka.Persistence.PersistentView.ViewId"/> and <see cref="P:Akka.Persistence.PersistentView.PersistenceId"/>.
+            </summary>
+        </member>
+        <member name="P:Akka.Persistence.PersistentView.PersistenceId">
+            <summary>
+            Id of the persistent entity for which messages should be replayed.
+            </summary>
+        </member>
+        <member name="P:Akka.Persistence.PersistentView.SnapshotterId">
+            <summary>
+            Gets the <see cref="P:Akka.Persistence.PersistentView.ViewId"/>.
+            </summary>
+        </member>
+        <member name="P:Akka.Persistence.PersistentView.IsPersistent">
+            <summary>
+            If true, the currently processed message was persisted - it sent from the <see cref="P:Akka.Persistence.PersistentView.Journal"/>.
+            If false, the currently processed message comes from another actor ('/user/*' path).
+            </summary>
+        </member>
+        <member name="P:Akka.Persistence.PersistentView.IsAutoUpdate">
+            <summary>
+            If true, this view will update itself automatically within an interval specified by <see cref="P:Akka.Persistence.PersistentView.AutoUpdateInterval"/>.
+            If false, application must update this view explicitly with <see cref="T:Akka.Persistence.Update"/> requests.
+            </summary>
+        </member>
+        <member name="P:Akka.Persistence.PersistentView.AutoUpdateInterval">
+            <summary>
+            Time interval to automatic updates. Used only when <see cref="P:Akka.Persistence.PersistentView.IsAutoUpdate"/> value is true.
+            </summary>
+        </member>
+        <member name="P:Akka.Persistence.PersistentView.AutoUpdateReplayMax">
+            <summary>
+            The maximum number of messages to replay per update.
+            </summary>
+        </member>
+        <member name="P:Akka.Persistence.PersistentView.LastSequenceNr">
+            <summary>
+            Highest received sequence number so far or 0 it none persistent event has been replayed yet.
+            </summary>
+        </member>
+        <member name="P:Akka.Persistence.PersistentView.SnapshotSequenceNr">
+            <summary>
+            Gets last sequence number.
+            </summary>
+        </member>
+        <member name="T:Akka.Persistence.DeleteMessagesFailure">
+            <summary>
+            Reply message to failed <see cref="T:Akka.Persistence.DeleteMessages"/> request.
+            </summary>
+        </member>
+        <member name="T:Akka.Persistence.DeleteMessagesTo">
+            <summary>
+            Request to delete all persistent messages with sequence numbers up to `toSequenceNr` (inclusive).  
+            </summary>
+        </member>
+        <member name="P:Akka.Persistence.DeleteMessagesTo.IsPermanent">
+            <summary>
+            If false, the persistent messages are marked as deleted in the journal, 
+            otherwise they are permanently deleted from the journal.
+            </summary>
+        </member>
+        <member name="T:Akka.Persistence.WriteMessagesSuccessful">
+            <summary>
+            Reply message to a successful <see cref="T:Akka.Persistence.WriteMessages"/> request. This reply is sent 
+            to the requestor before all subsequent <see cref="T:Akka.Persistence.WriteMessageSuccess"/> replies.
+            </summary>
+        </member>
+        <member name="T:Akka.Persistence.WriteMessagesFailed">
+            <summary>
+            Reply message to a failed <see cref="T:Akka.Persistence.WriteMessages"/> request. This reply is sent 
+            to the requestor before all subsequent <see cref="T:Akka.Persistence.WriteMessageFailure"/> replies.
+            </summary>
+        </member>
+        <member name="T:Akka.Persistence.WriteMessageSuccess">
+            <summary>
+            Reply message to a successful <see cref="T:Akka.Persistence.WriteMessages"/> request. For each contained 
+            <see cref="T:Akka.Persistence.IPersistentRepresentation"/> message in the request, a separate reply is sent to the requestor.
+            </summary>
+        </member>
+        <member name="P:Akka.Persistence.WriteMessageSuccess.Persistent">
+            <summary>
+            Successfully written message.
+            </summary>
+        </member>
+        <member name="T:Akka.Persistence.WriteMessageFailure">
+            <summary>
+            Reply message to a failed <see cref="T:Akka.Persistence.WriteMessages"/> request. For each contained 
+            <see cref="T:Akka.Persistence.IPersistentRepresentation"/> message in the request, a separate reply is sent to the requestor.
+            </summary>
+        </member>
+        <member name="P:Akka.Persistence.WriteMessageFailure.Persistent">
+            <summary>
+            Message failed to be written.
+            </summary>
+        </member>
+        <member name="P:Akka.Persistence.WriteMessageFailure.Cause">
+            <summary>
+            Failure cause.
+            </summary>
+        </member>
+        <member name="T:Akka.Persistence.LoopMessageSuccess">
+            <summary>
+            Reply message to a <see cref="T:Akka.Persistence.WriteMessages"/> with a non-persistent message.
+            </summary>
+        </member>
+        <member name="P:Akka.Persistence.LoopMessageSuccess.Message">
+            <summary>
+            A looped message.
+            </summary>
+        </member>
+        <member name="T:Akka.Persistence.ReplayMessages">
+            <summary>
+            Request to replay messages to the <see cref="P:Akka.Persistence.ReplayMessages.PersistentActor"/>.
+            </summary>
+        </member>
+        <member name="P:Akka.Persistence.ReplayMessages.FromSequenceNr">
+            <summary>
+            Inclusive lower sequence number bound where a replay should start.
+            </summary>
+        </member>
+        <member name="P:Akka.Persistence.ReplayMessages.ToSequenceNr">
+            <summary>
+            Inclusive upper sequence number bound where a replay should end.
+            </summary>
+        </member>
+        <member name="P:Akka.Persistence.ReplayMessages.Max">
+            <summary>
+            Maximum number of messages to be replayed.
+            </summary>
+        </member>
+        <member name="P:Akka.Persistence.ReplayMessages.PersistenceId">
+            <summary>
+            Requesting persistent actor identifier.
+            </summary>
+        </member>
+        <member name="P:Akka.Persistence.ReplayMessages.PersistentActor">
+            <summary>
+            Requesting persistent actor.
+            </summary>
+        </member>
+        <member name="P:Akka.Persistence.ReplayMessages.ReplayDeleted">
+            <summary>
+            If true, message marked as deleted shall be replayed.
+            </summary>
+        </member>
+        <member name="T:Akka.Persistence.ReplayedMessage">
+            <summary>
+            Reply message to a <see cref="T:Akka.Persistence.ReplayMessages"/> request. A separate reply is sent to the requestor for each replayed message.
+            </summary>
+        </member>
+        <member name="T:Akka.Persistence.ReplayMessagesSuccess">
+            <summary>
+            Reply message to a successful <see cref="T:Akka.Persistence.ReplayMessages"/> request. This reply is sent 
+            to the requestor after all <see cref="T:Akka.Persistence.ReplayedMessage"/> have been sent (if any).
+            </summary>
+        </member>
+        <member name="M:Akka.Persistence.Journal.IAsyncRecovery.ReplayMessagesAsync(System.String,System.Int64,System.Int64,System.Int64,System.Action{Akka.Persistence.IPersistentRepresentation})">
+            <summary>
+            Asynchronously replays persistent messages. Replay a message by calling <paramref name="replayCallback"/>.
+            Returned task must be completed then all messages (matching the sequence upper bounds) have been replayed.
+            If any of the persistent messages couldn't be replayed, task must return failure.
+            
+            <paramref name="replayCallback"/> must be called with messages that have been marked as deleted.
+            </summary>
+            <param name="persistenceId">Persistent actor identifier</param>
+            <param name="fromSequenceNr">Inclusive sequence number where replay should start</param>
+            <param name="toSequenceNr">Inclusive sequence number where replay should end</param>
+            <param name="max">Maximum number of messages to be replayed</param>
+            <param name="replayCallback">Called to replay a message, may be called from any thread.</param>
+            <returns></returns>
+        </member>
+        <member name="M:Akka.Persistence.Journal.IAsyncRecovery.ReadHighestSequenceNrAsync(System.String,System.Int64)">
+            <summary>
+            Asynchronously reads the highest stored sequence number for provided <paramref name="persistenceId"/>.
+            </summary>
+            <param name="persistenceId">Persistent actor identifier</param>
+            <param name="fromSequenceNr">Heuristic where to start searching for the highest sequence number</param>
+            <returns></returns>
+        </member>
+        <member name="M:Akka.Persistence.Journal.AsyncWriteJournal.WriteMessagesAsync(System.Collections.Generic.IEnumerable{Akka.Persistence.IPersistentRepresentation})">
+            <summary>
+            Asynchronously writes a batch of a persistent messages to the journal. The batch must be atomic,
+            i.e. all persistent messages in batch are written at once or none of them.
+            </summary>
+        </member>
+        <member name="M:Akka.Persistence.Journal.AsyncWriteJournal.DeleteMessagesToAsync(System.String,System.Int64,System.Boolean)">
+            <summary>
+            Asynchronously deletes all persistent messages up to inclusive <paramref name="toSequenceNr"/>
+            bound. If <paramref name="isPermanent"/> flag is clear, the persistent messages are marked as
+            deleted, otherwise they're permanently deleted.
+            </summary>
+        </member>
+        <member name="T:Akka.Persistence.Journal.MemoryJournal">
+            <summary>
+            In-memory journal for testing purposes.
+            </summary>
+        </member>
+        <member name="M:Akka.Persistence.Journal.SyncWriteJournal.WriteMessages(System.Collections.Generic.IEnumerable{Akka.Persistence.IPersistentRepresentation})">
+            <summary>
+            Synchronously writes a batch of a persistent messages to the journal. The batch must be atomic,
+            i.e. all persistent messages in batch are written at once or none of them.
+            </summary>
+        </member>
+        <member name="M:Akka.Persistence.Journal.SyncWriteJournal.DeleteMessagesTo(System.String,System.Int64,System.Boolean)">
+            <summary>
+            Synchronously deletes all persistent messages up to inclusive <paramref name="toSequenceNr"/>
+            bound. If <paramref name="isPermanent"/> flag is clear, the persistent messages are marked as
+            deleted, otherwise they're permanently deleted.
+            </summary>
+        </member>
+        <member name="M:Akka.Persistence.PersistenceExtension.SnapshotStoreFor(System.String)">
+            <summary>
+            Returns a snapshot store plugin actor identified by <paramref name="snapshotPluginId"/>. 
+            When empty looks for default path under "akka.persistence.snapshot-store.plugin".
+            </summary>
+        </member>
+        <member name="M:Akka.Persistence.PersistenceExtension.JournalFor(System.String)">
+            <summary>
+            Returns a journal plugin actor identified by <paramref name="journalPluginId"/>. 
+            When empty looks for default path under "akka.persistence.journal.plugin".
+            </summary>
+        </member>
+        <member name="T:Akka.Persistence.Persistence">
+            <summary>
+            Persistence extension.
+            </summary>
+        </member>
+        <member name="T:Akka.Persistence.PersistenceSettings">
+            <summary>
+            Persistence configuration.
+            </summary>
+        </member>
+        <member name="T:Akka.Persistence.IPersistentEnvelope">
+            <summary>
+            Marks messages, which can then be resequenced by <see cref="T:Akka.Persistence.Journal.AsyncWriteJournal"/>.
+            </summary>
+        </member>
+        <member name="T:Akka.Persistence.NonPersistentMessage">
+            <summary>
+            Message, which can be resequenced by <see cref="T:Akka.Persistence.Journal.AsyncWriteJournal"/>, but won't be persisted.
+            </summary>
+        </member>
+        <member name="P:Akka.Persistence.NonPersistentMessage.Payload">
+            <summary>
+            Message's payload.
+            </summary>
+        </member>
+        <member name="P:Akka.Persistence.NonPersistentMessage.Sender">
+            <summary>
+            Sender of this message.
+            </summary>
+        </member>
+        <member name="T:Akka.Persistence.IPersistentRepresentation">
+            <summary>
+            Representation of a persistent message in the journal plugin API.
+            </summary>
+        </member>
+        <member name="M:Akka.Persistence.IPersistentRepresentation.WithPayload(System.Object)">
+            <summary>
+            Creates a new persistent message with the specified <paramref name="payload"/>.
+            </summary>
+        </member>
+        <member name="M:Akka.Persistence.IPersistentRepresentation.Update(System.Int64,System.String,System.Boolean,Akka.Actor.IActorRef)">
+            <summary>
+            Creates a new deep copy of this message.
+            </summary>
+        </member>
+        <member name="P:Akka.Persistence.IPersistentRepresentation.IsDeleted">
+            <summary>
+            True if this message is marked as deleted.
+            </summary>
+        </member>
+        <member name="P:Akka.Persistence.IPersistentRepresentation.SequenceNr">
+            <summary>
+            Sequence number of this persistent message.
+            </summary>
+        </member>
+        <member name="T:Akka.Persistence.Serialization.Snapshot">
+            <summary>
+            Wrapper for snapshot data.
+            </summary>
+        </member>
+        <member name="P:Akka.Persistence.SnapshotMetadata.PersistenceId">
+            <summary>
+            Id of the persistent actor, from which the snapshot was taken.
+            </summary>
+        </member>
+        <member name="P:Akka.Persistence.SnapshotMetadata.SequenceNr">
+            <summary>
+            Sequence number at which a snapshot was taken.
+            </summary>
+        </member>
+        <member name="P:Akka.Persistence.SnapshotMetadata.Timestamp">
+            <summary>
+            Time at which the snapshot was saved.
+            </summary>
+        </member>
+        <member name="T:Akka.Persistence.SaveSnapshotSuccess">
+            <summary>
+            Sent to <see cref="T:Akka.Persistence.PersistentActor"/> after successful saving of a snapshot.
+            </summary>
+        </member>
+        <member name="T:Akka.Persistence.SaveSnapshotFailure">
+            <summary>
+            Sent to <see cref="T:Akka.Persistence.PersistentActor"/> after failed saving a snapshot.
+            </summary>
+        </member>
+        <member name="P:Akka.Persistence.SaveSnapshotFailure.Metadata">
+            <summary>
+            Snapshot metadata.
+            </summary>
+        </member>
+        <member name="P:Akka.Persistence.SaveSnapshotFailure.Cause">
+            <summary>
+            A failure cause.
+            </summary>
+        </member>
+        <member name="T:Akka.Persistence.SnapshotOffer">
+            <summary>
+            Offers a <see cref="T:Akka.Persistence.PersistentActor"/> a previously saved snapshot during recovery.
+            This offer is received before any further replayed messages.
+            </summary>
+        </member>
+        <member name="T:Akka.Persistence.SnapshotSelectionCriteria">
+            <summary>
+            Selection criteria for loading and deleting a snapshots.
+            </summary>
+        </member>
+        <member name="P:Akka.Persistence.SnapshotSelectionCriteria.MaxSequenceNr">
+            <summary>
+            Upper bound for a selected snapshot's sequence number.
+            </summary>
+        </member>
+        <member name="P:Akka.Persistence.SnapshotSelectionCriteria.MaxTimeStamp">
+            <summary>
+            Upper bound for a selected snapshot's timestamp.
+            </summary>
+        </member>
+        <member name="T:Akka.Persistence.SelectedSnapshot">
+            <summary>
+            A selected snapshot matching <see cref="T:Akka.Persistence.SnapshotSelectionCriteria"/>.
+            </summary>
+        </member>
+        <member name="T:Akka.Persistence.LoadSnapshot">
+            <summary>
+            Instructs a snapshot store to load the snapshot.
+            </summary>
+        </member>
+        <member name="P:Akka.Persistence.LoadSnapshot.PersistenceId">
+            <summary>
+            Persistent actor identifier.
+            </summary>
+        </member>
+        <member name="P:Akka.Persistence.LoadSnapshot.Criteria">
+            <summary>
+            Criteria for selecting snapshot, from which the recovery should start.
+            </summary>
+        </member>
+        <member name="P:Akka.Persistence.LoadSnapshot.ToSequenceNr">
+            <summary>
+            Upper, inclusive sequence number bound for recovery.
+            </summary>
+        </member>
+        <member name="T:Akka.Persistence.LoadSnapshotResult">
+            <summary>
+            Response to a <see cref="T:Akka.Persistence.LoadSnapshot"/> message.
+            </summary>
+        </member>
+        <member name="P:Akka.Persistence.LoadSnapshotResult.Snapshot">
+            <summary>
+            Loaded snapshot or null if none provided.
+            </summary>
+        </member>
+        <member name="T:Akka.Persistence.SaveSnapshot">
+            <summary>
+            Instructs a snapshot store to save a snapshot.
+            </summary>
+        </member>
+        <member name="T:Akka.Persistence.DeleteSnapshot">
+            <summary>
+            Instructs a snapshot store to delete a snapshot.
+            </summary>
+        </member>
+        <member name="T:Akka.Persistence.DeleteSnapshots">
+            <summary>
+            Instructs a snapshot store to delete all snapshots that match provided criteria.
+            </summary>
+        </member>
+        <member name="M:Akka.Persistence.Snapshot.SnapshotStore.LoadAsync(System.String,Akka.Persistence.SnapshotSelectionCriteria)">
+            <summary>
+            Asynchronously loads a snapshot.
+            </summary>
+        </member>
+        <member name="M:Akka.Persistence.Snapshot.SnapshotStore.SaveAsync(Akka.Persistence.SnapshotMetadata,System.Object)">
+            <summary>
+            Asynchronously saves a snapshot.
+            </summary>
+        </member>
+        <member name="M:Akka.Persistence.Snapshot.SnapshotStore.Saved(Akka.Persistence.SnapshotMetadata)">
+            <summary>
+            Called after successful saving a snapshot.
+            </summary>
+        </member>
+        <member name="M:Akka.Persistence.Snapshot.SnapshotStore.Delete(Akka.Persistence.SnapshotMetadata)">
+            <summary>
+            Deletes the snapshot identified by <paramref name="metadata"/>.
+            </summary>
+        </member>
+        <member name="M:Akka.Persistence.Snapshot.SnapshotStore.Delete(System.String,Akka.Persistence.SnapshotSelectionCriteria)">
+            <summary>
+            Deletes all snapshots matching provided <paramref name="criteria"/>.
+            </summary>
+        </member>
+        <member name="F:Akka.Persistence.Snapshot.LocalSnapshotStore.StoreSettings.Dir">
+            <summary>
+            Storage location of snapshot files;
+            </summary>
+        </member>
+        <member name="F:Akka.Persistence.Snapshot.LocalSnapshotStore.StoreSettings.StreamDispatcher">
+            <summary>
+            Dispatcher for streaming snapshot IO.
+            </summary>
+        </member>
+        <member name="F:Akka.Persistence.Snapshot.LocalSnapshotStore.StoreSettings.LoadAttempts">
+            <summary>
+            Number of attempts made to load a subsequent snapshots in case they were corrupted.
+            </summary>
+        </member>
+        <member name="T:Akka.Persistence.Update">
+            <summary>
+            Instructs a <see cref="T:Akka.Persistence.PersistentView"/> to update itself. This will run a single incremental message replay 
+            with all messages from the corresponding persistent id's journal that have not yet been consumed by the view.  
+            To update a view with messages that have been written after handling this request, another <see cref="T:Akka.Persistence.Update"/> 
+            request must be sent to the view.
+            </summary>
+        </member>
+        <member name="P:Akka.Persistence.Update.IsAwait">
+            <summary>
+            If `true`, processing of further messages sent to the view will be delayed 
+            until the incremental message replay, triggered by this update request, completes. 
+            If `false`, any message sent to the view may interleave with replayed <see cref="T:Akka.Persistence.Persistent"/> message stream.
+            </summary>
+        </member>
+        <member name="P:Akka.Persistence.Update.ReplayMax">
+            <summary>
+            Maximum number of messages to replay when handling this update request. Defaults to <see cref="F:System.Int64.MaxValue"/> (i.e. no limit).
+            </summary>
+        </member>
+    </members>
+</doc>

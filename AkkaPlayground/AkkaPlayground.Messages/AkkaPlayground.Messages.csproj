@@ -1,0 +1,96 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Project ToolsVersion="12.0" DefaultTargets="Build" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <Import Project="$(MSBuildExtensionsPath)\$(MSBuildToolsVersion)\Microsoft.Common.props" Condition="Exists('$(MSBuildExtensionsPath)\$(MSBuildToolsVersion)\Microsoft.Common.props')" />
+  <PropertyGroup>
+    <Configuration Condition=" '$(Configuration)' == '' ">Debug</Configuration>
+    <Platform Condition=" '$(Platform)' == '' ">AnyCPU</Platform>
+    <ProjectGuid>{F390587E-D65A-4096-8395-09446E78C795}</ProjectGuid>
+    <OutputType>Library</OutputType>
+    <AppDesignerFolder>Properties</AppDesignerFolder>
+    <RootNamespace>AkkaPlayground.Messages</RootNamespace>
+    <AssemblyName>AkkaPlayground.Messages</AssemblyName>
+    <TargetFrameworkVersion>v4.5</TargetFrameworkVersion>
+    <FileAlignment>512</FileAlignment>
+  </PropertyGroup>
+  <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Debug|AnyCPU' ">
+    <PlatformTarget>AnyCPU</PlatformTarget>
+    <DebugSymbols>true</DebugSymbols>
+    <DebugType>full</DebugType>
+    <Optimize>false</Optimize>
+    <OutputPath>bin\Debug\</OutputPath>
+    <DefineConstants>DEBUG;TRACE</DefineConstants>
+    <ErrorReport>prompt</ErrorReport>
+    <WarningLevel>4</WarningLevel>
+  </PropertyGroup>
+  <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Release|AnyCPU' ">
+    <PlatformTarget>AnyCPU</PlatformTarget>
+    <DebugType>pdbonly</DebugType>
+    <Optimize>true</Optimize>
+    <OutputPath>bin\Release\</OutputPath>
+    <DefineConstants>TRACE</DefineConstants>
+    <ErrorReport>prompt</ErrorReport>
+    <WarningLevel>4</WarningLevel>
+  </PropertyGroup>
+  <PropertyGroup>
+    <StartupObject />
+  </PropertyGroup>
+  <ItemGroup>
+    <Reference Include="Akka, Version=1.0.4.12, Culture=neutral, processorArchitecture=MSIL">
+      <HintPath>..\packages\Akka.1.0.4\lib\net45\Akka.dll</HintPath>
+      <Private>True</Private>
+    </Reference>
+    <Reference Include="Newtonsoft.Json, Version=7.0.0.0, Culture=neutral, PublicKeyToken=30ad4fe6b2a6aeed, processorArchitecture=MSIL">
+      <HintPath>..\packages\Newtonsoft.Json.7.0.1\lib\net45\Newtonsoft.Json.dll</HintPath>
+      <Private>True</Private>
+    </Reference>
+    <Reference Include="System" />
+    <Reference Include="System.Core" />
+    <Reference Include="System.Xml.Linq" />
+    <Reference Include="System.Data.DataSetExtensions" />
+    <Reference Include="Microsoft.CSharp" />
+    <Reference Include="System.Data" />
+    <Reference Include="System.Xml" />
+  </ItemGroup>
+  <ItemGroup>
+    <Compile Include="Commands\AddUserToFollowersCommand.cs" />
+    <Compile Include="Commands\CreateChatCommand.cs" />
+    <Compile Include="Commands\SubscribeToUserCommand.cs" />
+    <Compile Include="Commands\ChangeUserNameEmailCommand.cs" />
+    <Compile Include="Commands\JoinChatCommand.cs" />
+    <Compile Include="Commands\AddMessageToChat.cs" />
+    <Compile Include="Events\ChatCreatedEvent.cs" />
+    <Compile Include="Events\SubscribedToUserEvent.cs" />
+    <Compile Include="Events\ChatJoinedEvent.cs" />
+    <Compile Include="Events\ChatMessageAddedEvent.cs" />
+    <Compile Include="Events\UserAddedToChat.cs" />
+    <Compile Include="Events\UserAddedToFollowersEvent.cs" />
+    <Compile Include="Messages\GetPrivateChatWithUser.cs" />
+    <Compile Include="Messages\SubscribedToListResult.cs" />
+    <Compile Include="Messages\GetUserByEmail.cs" />
+    <Compile Include="Commands\RegisterUserCommand.cs" />
+    <Compile Include="Messages\GetUserByLogin.cs" />
+    <Compile Include="Messages\GetUserSubscribedToList.cs" />
+    <Compile Include="Messages\UserPrivateChatReult.cs" />
+    <Compile Include="Messages\UserFound.cs" />
+    <Compile Include="Events\UserNameEmailChangedEvent.cs" />
+    <Compile Include="Events\UserRegisteredEvent.cs" />
+    <Compile Include="Messages\GetUserById.cs" />
+    <Compile Include="Messages\GetUsersBySearchString.cs" />
+    <Compile Include="Messages\UserNotFound.cs" />
+    <Compile Include="Messages\UserSearchResult.cs" />
+    <Compile Include="Properties\AssemblyInfo.cs" />
+    <Compile Include="ReadModels\UserContactReadModel.cs" />
+    <Compile Include="ReadModels\UserReadModel.cs" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="packages.config" />
+  </ItemGroup>
+  <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
+  <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 
+       Other similar extension points exist, see Microsoft.Common.targets.
+  <Target Name="BeforeBuild">
+  </Target>
+  <Target Name="AfterBuild">
+  </Target>
+  -->
+</Project>

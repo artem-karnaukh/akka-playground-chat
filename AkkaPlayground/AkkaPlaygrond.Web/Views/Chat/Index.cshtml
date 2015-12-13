@@ -1,0 +1,21 @@
+﻿<ion-view view-title="Chat">
+    <ion-content class="chat">
+        <div class="message-list">
+            <div ng-repeat="message in messages" class="message-wrapper">
+                <div class="message" ng-class="message.Author === currentUserId ? 'message-mine' : 'message-other'">
+                    <div class="message-text">{{message.Message}}</div>
+                </div>
+            </div>
+        </div>
+    </ion-content>
+    <ion-footer-bar keyboard-attach class="bar-stable footer-chat item-input-inset">
+        <label class="item-input-wrapper">
+            <input ng-model="messageModel.text"
+                   dir="auto"
+                   type="text" />
+        </label>
+        <span>
+            <button ng-click="sendMessage()" class="button button-clear button-positive">Send</button>
+        </span>
+    </ion-footer-bar>
+</ion-view>
