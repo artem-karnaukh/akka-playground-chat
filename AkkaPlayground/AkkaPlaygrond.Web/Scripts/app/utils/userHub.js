@@ -1,64 +1,84 @@
 ﻿angular.module('Chat')
-.factory('UserHub', function ($q) {
+.service('UserHub', function ($q, $rootScope) {
 
-    var userHub = null;
+    var self = this;
+    self.userHub = null;
 
     var initializedTask = $q.defer()
 
     function initialize () {
-        userHub = $.connection.userHub;
-        userHub.on('onTest', function (text) { } );
-        userHub.connection.start().done(function() {
+        self.userHub = $.connection.userHub;
+        self.userHub.client.chatMessageAdded = function (message) {
+            $rootScope.$emit('chatMessageAdded', message);
+        };
+
+        self.userHub.connection.start().done(function() {
             initializedTask.resolve();
         });
     };
     initialize();
 
     function subscribe(eventName, callback) {
-        userHub.on(eventName, callback);
+        self.userHub.on(eventName, callback);
     }
 
     function unSubscribe(eventName) {
-        userHub.off(eventName, callback);
+        self.userHub.off(eventName, callback);
+    }
+
+    function joinSignalRGroup(chatId) {
+        return self.userHub.server.joinSignalRGroup(chatId);
+    };
+
+    function getChatLog(chatId) {
+        return self.userHub.server.getChatLog(chatId);
     }
 
     function getUserChat(userId, targetUserId) {
-        return userHub.server.getUserChat(userId, targetUserId)
+        return self.userHub.server.getUserChat(userId, targetUserId)
     }
 
     function createChat(userId, targetUserId) {
-        return userHub.server.createChat(userId, targetUserId);
+        return self.userHub.server.createChat(userId, targetUserId);
     }
 
     function addChatMessage(userId, chatId, text) {
-        return userHub.server.addChatMessage(userId, chatId, text);
+        return self.userHub.server.addChatMessage(userId, chatId, text);
     }
 
     function getUsersContacts(userId) {
-        return userHub.server.getUsersContacts(userId);
+        return self.userHub.server.getUsersContacts(userId);
     }
 
     function register(data) {
-        return userHub.server.register(data);
+        return self.userHub.server.register(data);
     }
 
     function login(value) {
-        return userHub.server.login(value);
+        return self.userHub.server.login(value);
     }
 
     function addToContactList(userId, targetUserId) {
-        return userHub.server.addToContactList(userId, targetUserId);
+        return self.userHub.server.addToContactList(userId, targetUserId);
     }
 
     function search(userId, value) {
-        return userHub.server.search(userId, value);
+        return self.userHub.server.search(userId, value);
+    }
+
+    function getUserChats(userId) {
+        return self.userHub.server.getUserChats(userId);
+    }
+
+    function joinSignalRChatGroups(userId) {
+        return self.userHub.server.joinSignalRChatGroups(userId);
     }
 
     return {
         subscribe: subscribe,
         unSubscribe: unSubscribe,
         initialized: initializedTask.promise,
-
+        getChatLog: getChatLog,
         getUserChat: getUserChat,
         createChat: createChat,
         addChatMessage: addChatMessage,
@@ -66,7 +86,10 @@
         register: register,
         login: login,
         addToContactList: addToContactList,
-        search: search
+        search: search,
+        getUserChats: getUserChats,
+        joinSignalRGroup: joinSignalRGroup,
+        joinSignalRChatGroups: joinSignalRChatGroups
     };
 
 });

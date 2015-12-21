@@ -17,10 +17,5 @@ namespace AkkaPlayground.Messages.Events
             Id = id;
             Participants = participants;
         }
-
-        public object ConsistentHashKey
-        {
-            get { return Id; }
-        }
     }
 }

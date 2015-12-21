@@ -25,11 +25,9 @@ namespace AkkaPlaygrond.Web
         {
             AreaRegistration.RegisterAllAreas();
 
-            WebApiConfig.Register(GlobalConfiguration.Configuration);
             FilterConfig.RegisterGlobalFilters(GlobalFilters.Filters);
             RouteConfig.RegisterRoutes(RouteTable.Routes);
             BundleConfig.RegisterBundles(BundleTable.Bundles);
-            AuthConfig.RegisterAuth();
 
             ActorSystem = ActorSystem.Create("akka-persistance");
             var persistance = SqlitePersistence.Get(ActorSystem);

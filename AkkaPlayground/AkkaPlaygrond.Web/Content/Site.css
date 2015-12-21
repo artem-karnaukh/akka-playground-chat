@@ -1,4 +1,17 @@
-﻿.list.padding-list {
+﻿
+.signuplink {
+    padding-bottom: 20px;
+}
+
+.right { 
+    float:right;
+}
+
+.clear {
+    clear: both;
+}
+
+.list.padding-list {
     padding-top: 50px;
 }
 

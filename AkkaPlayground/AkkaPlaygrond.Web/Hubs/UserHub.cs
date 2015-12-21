@@ -1,6 +1,7 @@
 ﻿using Akka.Actor;
 using AkkaPlaygrond.Web.Actors;
 using AkkaPlaygrond.Web.Models;
+using AkkaPlayground.Core.Entities;
 using AkkaPlayground.Messages.Commands;
 using AkkaPlayground.Messages.Events;
 using AkkaPlayground.Messages.Messages;
@@ -35,6 +36,16 @@ namespace AkkaPlaygrond.Web.Hubs
             }
             return (UserFound)result;
         }
+
+        public void JoinSignalRChatGroups(Guid userId)
+        {
+            UserChatsResult result = GetUserChats(userId);
+            foreach(var chat in result.Chats)
+            {
+                JoinSignalRGroup(chat.ChatId);
+            }
+        }
+          
 
         public SubscribedToUserEvent AddToContactList(Guid userId, Guid targetUserId)
         {
@@ -104,10 +115,23 @@ namespace AkkaPlaygrond.Web.Hubs
             SystemActors.SignalRActor.Tell(new AddMessageToChat(chatId, currentUserId, message));
         }
 
+        public ChatHistoryResult GetChatLog(Guid chatId)
+        {
+            GetChatHistory message = new GetChatHistory(chatId);
+            ChatHistoryResult result = SystemActors.SignalRActor.Ask<ChatHistoryResult>(message).Result;
+            return result;
+        }
 
-        private void JoinSignalRGroup(Guid chatId)
+        public UserChatsResult GetUserChats(Guid userId)
+        {
+            UserChatsResult result = SystemActors.SignalRActor.Ask<UserChatsResult>(new GetUserChats(userId)).Result;
+            return result;
+        }
+
+        public void JoinSignalRGroup(Guid chatId)
         {
             Groups.Add(Context.ConnectionId, chatId.ToString());
         }
+
     }
 }

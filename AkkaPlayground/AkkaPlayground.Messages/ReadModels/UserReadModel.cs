@@ -18,6 +18,8 @@ namespace AkkaPlayground.Messages.ReadModels
 
         public List<UserContactReadModel> FollowersList { get; set; }
 
+        public List<UserChatReadModel> Chats { get; set; }
+
         public UserReadModel(Guid id, string name, string email)
         {
             Id = id;
@@ -26,6 +28,7 @@ namespace AkkaPlayground.Messages.ReadModels
 
             SubscribedToList = new List<UserContactReadModel>();
             FollowersList = new List<UserContactReadModel>();
+            Chats = new List<UserChatReadModel>();
         }
 
     }

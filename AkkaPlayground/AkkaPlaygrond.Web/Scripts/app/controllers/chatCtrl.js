@@ -1,9 +1,7 @@
 ﻿angular.module('Chat')
-.controller("ChatCtrl", function ($scope, $http, $stateParams, UserContext, UserHub) {
-
-    var chatId = undefined;
+.controller("ChatCtrl", function ($rootScope, $scope, $stateParams, $q, UserContext, UserHub) {
+    var chatId = $stateParams.chatId;
     var targetUserId = $stateParams.userId;
-    $scope.initialized = false;
     $scope.messageModel = { text: '' };
     $scope.messages = [];
 
@@ -19,11 +17,11 @@
     var loggedInUser = UserContext.getUser();
     $scope.currentUserId = loggedInUser.Id;
 
-    UserHub.initialized.then(function() {
-        if (!$scope.currentUserId) {
-            return;
-        }
-        UserHub.subscribe('chatMessageAdded', function (message) {
+    var ready = $q.defer();
+
+    ready.promise.then(function () {
+        $rootScope.$on('chatMessageAdded', function (e, message) {
+            debugger
             if (chatId != message.ChatId) {
                 return;
             }
@@ -33,16 +31,33 @@
             });
         });
 
-        UserHub.getUserChat(loggedInUser.Id, targetUserId).done(function (result) {
-            $scope.initialized = true;
-            chatId = result;
+        UserHub.getChatLog(chatId).then(function (response) {
+            $scope.messages = $scope.messages.concat(response.Log);
+            $scope.$digest();
+        })
+    });
 
-            if (!result) {
-                UserHub.createChat(loggedInUser.Id, targetUserId).done(function (result) {
-                    chatId = result;
-                });
-            }
-        });
+    UserHub.initialized.then(function() {
+        if (!$scope.currentUserId) {
+            ready.resolve();
+            return;
+        }
+        if (!chatId) {
+            UserHub.getUserChat(loggedInUser.Id, targetUserId).done(function (result) {
+                chatId = result;
+
+                if (!result) {
+                    UserHub.createChat(loggedInUser.Id, targetUserId).done(function (result) {
+                        chatId = result;
+                        ready.resolve()
+                    });
+                } else {
+                    ready.resolve()
+                }
+            });
+        } else {
+            ready.resolve();
+        }
     })
 
 });

@@ -58,18 +58,28 @@
     <Compile Include="Commands\ChangeUserNameEmailCommand.cs" />
     <Compile Include="Commands\JoinChatCommand.cs" />
     <Compile Include="Commands\AddMessageToChat.cs" />
+    <Compile Include="Entities\ChatEntity.cs" />
+    <Compile Include="Entities\ChatHistoryReadModel.cs" />
+    <Compile Include="Entities\ChatLogEntity.cs" />
+    <Compile Include="Entities\UserChatEntity.cs" />
+    <Compile Include="Entities\UserEntity.cs" />
     <Compile Include="Events\ChatCreatedEvent.cs" />
     <Compile Include="Events\SubscribedToUserEvent.cs" />
     <Compile Include="Events\ChatJoinedEvent.cs" />
     <Compile Include="Events\ChatMessageAddedEvent.cs" />
     <Compile Include="Events\UserAddedToChat.cs" />
     <Compile Include="Events\UserAddedToFollowersEvent.cs" />
+    <Compile Include="Events\UserChatMessageAddedEvent.cs" />
+    <Compile Include="Messages\ChatHistoryResult.cs" />
+    <Compile Include="Messages\GetChatHistory.cs" />
     <Compile Include="Messages\GetPrivateChatWithUser.cs" />
+    <Compile Include="Messages\GetUserChats.cs" />
     <Compile Include="Messages\SubscribedToListResult.cs" />
     <Compile Include="Messages\GetUserByEmail.cs" />
     <Compile Include="Commands\RegisterUserCommand.cs" />
     <Compile Include="Messages\GetUserByLogin.cs" />
     <Compile Include="Messages\GetUserSubscribedToList.cs" />
+    <Compile Include="Messages\UserChatsResult.cs" />
     <Compile Include="Messages\UserPrivateChatReult.cs" />
     <Compile Include="Messages\UserFound.cs" />
     <Compile Include="Events\UserNameEmailChangedEvent.cs" />
@@ -79,6 +89,8 @@
     <Compile Include="Messages\UserNotFound.cs" />
     <Compile Include="Messages\UserSearchResult.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
+    <Compile Include="ReadModels\UserChatParticipantReadModel.cs" />
+    <Compile Include="ReadModels\UserChatReadModel.cs" />
     <Compile Include="ReadModels\UserContactReadModel.cs" />
     <Compile Include="ReadModels\UserReadModel.cs" />
   </ItemGroup>

@@ -70,6 +70,11 @@ namespace AkkaPlaygrond.Web.Actors
                 _chatBucketRouter.Tell(cmd);
             });
 
+            Receive<GetChatHistory>(mes =>
+            {
+                _chatBucketRouter.Ask<ChatHistoryResult>(mes).PipeTo(Sender, Self);
+            });
+
             Receive<UserRegisteredEvent>(evt =>
             {
                 SignalREventPusher pusher = new SignalREventPusher();
@@ -80,6 +85,11 @@ namespace AkkaPlaygrond.Web.Actors
             {
                 SignalREventPusher pusher = new SignalREventPusher();
                 pusher.ChatMessageAdded(evt);
+            });
+
+            Receive<GetUserChats>(mes =>
+            {
+                _userBuckerRouter.Ask<UserChatsResult>(mes).PipeTo(Sender, Self);
             });
 
         }

@@ -11,6 +11,7 @@ namespace AkkaPlaygrond.Web
                 .Include("~/Scripts/lib/ionic.bundle.js",
                         "~/Scripts/lib/jquery-1.8.2.js",
                         "~/Scripts/lib/jquery.signalR-2.2.0.js",
+                        "~/Scripts/lib/moment.js",
                         "~/Scripts/lib/signalr-hub.js"
                 ));
 
@@ -22,6 +23,7 @@ namespace AkkaPlaygrond.Web
                         "~/Scripts/app/controllers/registerCtrl.js",
                         "~/Scripts/app/utils/userContext.js",
                         "~/Scripts/app/controllers/chatCtrl.js",
+                        "~/Scripts/app/controllers/chatsListCtrl.js",
                         "~/Scripts/app/utils/userHub.js"
                         ));
 

@@ -3,6 +3,10 @@
 
     $scope.users = [];
 
+    $scope.doRefresh = function () {
+        getUsersContacts();
+    };
+
     function getUsersContacts() {
         var loggedInUser = UserContext.getUser();
         if (!loggedInUser) {
@@ -12,12 +16,13 @@
         UserHub.getUsersContacts(loggedInUser.Id).done(function (data) {
             $scope.$apply(function () {
                 $scope.users = data;
+                $scope.$broadcast('scroll.refreshComplete');
             })
         });
     }
 
     $scope.openChat = function (user) {
-        $state.go('tab.chat', { userId: user.Id });
+        $state.go('tab.user-chat-details', { userId: user.Id });
     }
 
     UserHub.initialized.then(function () {
