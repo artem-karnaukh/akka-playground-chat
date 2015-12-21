@@ -1,5 +1,6 @@
 ﻿using Akka.Actor;
 using AkkaPlayground.Messages.Commands;
+using AkkaPlayground.Messages.Messages;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -23,6 +24,11 @@ namespace AkkaPlayground.Core.Actors
             });
 
             Receive<AddMessageToChat>(x =>
+            {
+                Forward(x.ChatId, x);
+            });
+
+            Receive<GetChatHistory>(x =>
             {
                 Forward(x.ChatId, x);
             });

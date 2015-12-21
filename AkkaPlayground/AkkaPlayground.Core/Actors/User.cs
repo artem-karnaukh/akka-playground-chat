@@ -77,7 +77,12 @@ namespace AkkaPlayground.Core.Actors
                 })
                 .With<ChatMessageAddedEvent>(mes =>
                 {
-                    notificationPusher.Forward(mes);
+                    if (mes.Author != State.Id)
+                    {
+                        notificationPusher.Forward(mes);
+                    }
+                    Persist<UserChatMessageAddedEvent>(new UserChatMessageAddedEvent(mes.ChatId, mes.Author, mes.Message, mes.Date), UpdateState);
+                    userView.Tell(new Update());
                 })
                 .With<ChatCreatedEvent>(mes =>
                 {
@@ -94,10 +99,14 @@ namespace AkkaPlayground.Core.Actors
                     {
                         Sender.Tell(new UserPrivateChatReult(userPrivateChat.ChatId));
                     }
-                    else 
+                    else
                     {
                         Sender.Tell(new UserPrivateChatReult(null));
                     }
+                })
+                .With<GetUserChats>(mes =>
+                {
+                    userView.Ask<UserChatsResult>(mes).PipeTo(Sender);
                 });
         }
 

@@ -1,8 +1,0 @@
-C:\Users\kaar\documents\visual studio 2013\Projects\AkkaPlayground\AkkaPlayground.Messages\bin\Debug\AkkaPlayground.Messages.dll
-C:\Users\kaar\documents\visual studio 2013\Projects\AkkaPlayground\AkkaPlayground.Messages\bin\Debug\AkkaPlayground.Messages.pdb
-C:\Users\kaar\documents\visual studio 2013\Projects\AkkaPlayground\AkkaPlayground.Messages\bin\Debug\Akka.dll
-C:\Users\kaar\documents\visual studio 2013\Projects\AkkaPlayground\AkkaPlayground.Messages\bin\Debug\Newtonsoft.Json.dll
-C:\Users\kaar\documents\visual studio 2013\Projects\AkkaPlayground\AkkaPlayground.Messages\bin\Debug\Akka.xml
-C:\Users\kaar\documents\visual studio 2013\Projects\AkkaPlayground\AkkaPlayground.Messages\bin\Debug\Newtonsoft.Json.xml
-C:\Users\kaar\documents\visual studio 2013\Projects\AkkaPlayground\AkkaPlayground.Messages\obj\Debug\AkkaPlayground.Messages.dll
-C:\Users\kaar\documents\visual studio 2013\Projects\AkkaPlayground\AkkaPlayground.Messages\obj\Debug\AkkaPlayground.Messages.pdb

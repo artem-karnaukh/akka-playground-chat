@@ -63,6 +63,40 @@ namespace AkkaPlayground.Core.Actors.Views
                 {
                     Sender.Tell(new SubscribedToListResult(State.SubscribedToList));
                 })
+                .With<UserChatMessageAddedEvent>(mes =>
+                {
+                    UserChatReadModel userChat = State.Chats.FirstOrDefault(x => x.ChatId == mes.ChatId);
+                    if (userChat != null)
+                    {
+                        userChat.LastMessage = mes.Message;
+                        userChat.LastMessageDate = mes.Date;
+                    }
+                })
+                .With<UserAddedToChatEvent>(mes =>
+                {
+                    UserChatReadModel userChat = new UserChatReadModel()
+                    {
+                        ChatId = mes.ChatId,
+                    };
+                    foreach (var item in mes.Participants)
+                    {
+                        var userFound = userViewActor.Ask<UserFound>(new GetUserById(item)).Result;
+                        UserChatParticipantReadModel participant = new UserChatParticipantReadModel()
+                        {
+                            UserId = item,
+                            Name = userFound.Name
+                        };
+                        userChat.Participants.Add(participant);
+                    }
+
+                    State.Chats.Add(userChat);
+
+                })
+                .With<GetUserChats>(mes =>
+                {
+                    UserChatsResult result = new UserChatsResult(State.Chats);
+                    Sender.Tell(result);
+                })
                 .WasHandled;
         }
         

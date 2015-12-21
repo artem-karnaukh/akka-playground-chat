@@ -6,6 +6,8 @@ using System;
 using Akka;
 using Akka.Actor;
 using System.Collections.Generic;
+using AkkaPlayground.Messages.Messages;
+using System.Linq;
 
 namespace AkkaPlayground.Core.Actors
 {
@@ -42,7 +44,18 @@ namespace AkkaPlayground.Core.Actors
                 {
                     var messaegeAdded = new ChatMessageAddedEvent(mes.ChatId, mes.Author, mes.Message, DateTime.UtcNow);
                     Persist<ChatMessageAddedEvent>(messaegeAdded, UpdateState);
+                })
+                .With<GetChatHistory>(mes =>
+                {
+                    IEnumerable<ChatLogEntity> log = State.Log;
+                    if (mes.Skip.HasValue && mes.Take.HasValue)
+                    {
+                        log = log.Skip(mes.Skip.Value).Take(mes.Take.Value);
+                    }
+                    ChatHistoryResult result = new ChatHistoryResult(mes.ChatId, log.ToList());
+                    Sender.Tell(result);
                 });
+
         }
 
         private void UpdateState(object e)
@@ -66,8 +79,8 @@ namespace AkkaPlayground.Core.Actors
                 if (!IsRecovering)
                 {
                     PublishMessageAdded(x);
-                    Sender.Tell(x);
                 }
+                Sender.Tell(x);
             });
         }
 
@@ -81,12 +94,9 @@ namespace AkkaPlayground.Core.Actors
 
         private void PublishMessageAdded(ChatMessageAddedEvent chatMessageAdded)
         {
-            foreach(var user in State.Participants)
+            foreach (var user in State.Participants)
             {
-                if (user != chatMessageAdded.Author)
-                {
-                    Context.System.ActorSelection("/user/user-buckets/*/" + user.ToString()).Tell(chatMessageAdded);
-                }
+                Context.System.ActorSelection("/user/user-buckets/*/" + user.ToString()).Tell(chatMessageAdded);
             }
         }
     }

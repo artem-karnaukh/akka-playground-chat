@@ -44,7 +44,10 @@ namespace AkkaPlayground.Core.Actors
                 Forward(x.UserId, x);
             });
 
-            
+            Receive<GetUserChats>(x =>
+            {
+                Forward(x.UserId, x);
+            });
         }
 
         private void Forward(Guid id, object message)
