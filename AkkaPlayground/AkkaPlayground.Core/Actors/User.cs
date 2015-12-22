@@ -19,7 +19,7 @@ namespace AkkaPlayground.Core.Actors
         private readonly Guid _id;
         private UserEntity State = null;
         private IActorRef notificationPusher;
-        private IActorRef userView;
+        //private IActorRef userView;
 
         public User(Guid id)
         {
@@ -28,7 +28,7 @@ namespace AkkaPlayground.Core.Actors
             RecoverAny(UpdateState);
 
             notificationPusher = Context.ActorOf(Props.Create(() => new UserMobileNotificationPusher()), "mobile-pusher-"+_id.ToString());
-            userView = Context.ActorOf(Props.Create(() => new UserView(_id)), "user-view-" + _id.ToString());
+            //userView = Context.ActorOf(Props.Create(() => new UserView(_id)), "user-view-" + _id.ToString());
         }
 
         public override string PersistenceId
@@ -45,6 +45,11 @@ namespace AkkaPlayground.Core.Actors
                     Persist<UserRegisteredEvent>(userRegistered, UpdateState);
                     
                 });
+        }
+
+        protected override bool AroundReceive(Receive receive, object message)
+        {
+            return base.AroundReceive(receive, message);
         }
 
         protected void Initialized(object message)
@@ -73,7 +78,8 @@ namespace AkkaPlayground.Core.Actors
                 })
                 .With<GetUserSubscribedToList>(mes =>
                 {
-                    userView.Ask<SubscribedToListResult>(mes).PipeTo(Sender);
+                    Sender.Tell(null);
+                    //userView.Ask<SubscribedToListResult>(mes).PipeTo(Sender);
                 })
                 .With<ChatMessageAddedEvent>(mes =>
                 {
@@ -82,7 +88,7 @@ namespace AkkaPlayground.Core.Actors
                         notificationPusher.Forward(mes);
                     }
                     Persist<UserChatMessageAddedEvent>(new UserChatMessageAddedEvent(mes.ChatId, mes.Author, mes.Message, mes.Date), UpdateState);
-                    userView.Tell(new Update());
+                    //userView.Tell(new Update());
                 })
                 .With<ChatCreatedEvent>(mes =>
                 {
@@ -106,7 +112,7 @@ namespace AkkaPlayground.Core.Actors
                 })
                 .With<GetUserChats>(mes =>
                 {
-                    userView.Ask<UserChatsResult>(mes).PipeTo(Sender);
+                    //userView.Ask<UserChatsResult>(mes).PipeTo(Sender);
                 });
         }
 
@@ -143,20 +149,20 @@ namespace AkkaPlayground.Core.Actors
                     string path = "user/user-buckets/*/" + x.TargetUserId.ToString();
                     Context.System.ActorSelection(path).Tell(x);
                 }
-                userView.Tell(new Update(isAwait: true));
+                //userView.Tell(new Update(isAwait: true));
 
             })
             .With<UserAddedToFollowersEvent>(x =>
             {
                 State.FollowersList.Add(x.TargetUserId);
-                userView.Tell(new Update(isAwait: true));
+                //userView.Tell(new Update(isAwait: true));
             })
             .With<UserAddedToChatEvent>(x =>
             {
                 State.Chats.Add(new UserChatEntity() { ChatId = x.ChatId, Participants = x.Participants });
             });
         }
-
+        
     }
 }
 

@@ -60,5 +60,22 @@ namespace AkkaPlayground.Core.Actors
             child.Forward(message);
         }
 
+        public override void AroundPostStop()
+        {
+            base.AroundPostStop();
+        }
+
+        protected override SupervisorStrategy SupervisorStrategy()
+        {
+            return new OneForOneStrategy(x =>
+            {
+                return Directive.Restart;
+            });
+        }
+
+        protected override void Unhandled(object message)
+        {
+            base.Unhandled(message);
+        }
     }
 }

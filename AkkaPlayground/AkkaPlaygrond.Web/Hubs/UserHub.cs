@@ -44,8 +44,7 @@ namespace AkkaPlaygrond.Web.Hubs
             {
                 JoinSignalRGroup(chat.ChatId);
             }
-        }
-          
+        }     
 
         public SubscribedToUserEvent AddToContactList(Guid userId, Guid targetUserId)
         {

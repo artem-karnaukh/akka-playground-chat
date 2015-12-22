@@ -30,15 +30,16 @@ namespace AkkaPlaygrond.Web
             BundleConfig.RegisterBundles(BundleTable.Bundles);
 
             ActorSystem = ActorSystem.Create("akka-persistance");
+            
             var persistance = SqlitePersistence.Get(ActorSystem);
 
-            var userIndexActor = ActorSystem.ActorOf(Props.Create(() => new UserIndex()), "user-index");
+        
             
             var userRouter =  ActorSystem.ActorOf(Props.Create<UserBucket>().WithRouter(FromConfig.Instance), "user-buckets");
             var chatRouter = ActorSystem.ActorOf(Props.Create<ChatBucket>().WithRouter(FromConfig.Instance), "chat-buckets");
 
             SystemActors.SignalRActor =
-                ActorSystem.ActorOf(Props.Create(() => new SignalRActor(userRouter, chatRouter, userIndexActor)), "signalr");
+                ActorSystem.ActorOf(Props.Create(() => new SignalRActor(userRouter, chatRouter, ActorRefs.Nobody)), "signalr");
         }
 
         protected void Application_End()
