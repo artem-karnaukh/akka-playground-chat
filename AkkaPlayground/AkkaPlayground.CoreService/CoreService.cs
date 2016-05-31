@@ -1,5 +1,5 @@
 ﻿using Akka.Actor;
-using Akka.Persistence.Sqlite;
+using Akka.Persistence;
 using AkkaPlayground.Core.Actors;
 using System;
 using System.Collections.Generic;
@@ -18,7 +18,7 @@ namespace AkkaPlayground.CoreService
         {
             ClusterSystem = ActorSystem.Create("akka-persistance");
             //var userIndexActor = ClusterSystem.ActorOf(Props.Create(() => new UserIndex()), "user-index");
-            //var persistance = SqlitePersistence.Get(ClusterSystem);
+            var persistance = Akka.Persistence.Sqlite.SqlitePersistence.Get(ClusterSystem);
             return true;
         }
 

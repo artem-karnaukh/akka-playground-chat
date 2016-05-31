@@ -9,3 +9,9 @@
 /AkkaPlayground/AkkaPlaygrond.Web/bin
 /AkkaPlayground/AkkaPlaygrond.Web/App_Data
 /AkkaPlayground/AkkaPlayground.Core/bin
+/AkkaPlayground/AkkaPlayground.RemoteTarget
+/AkkaPlayground/AkkaPlayground.ReadModels
+/AkkaPlayground/Akka.Persistence
+/AkkaPlayground/AkkaPlayground.CoreService/obj
+/AkkaPlayground/AkkaNET.Sharding.Lighthouse/bin
+/AkkaPlayground/AkkaNET.Sharding.Lighthouse/obj

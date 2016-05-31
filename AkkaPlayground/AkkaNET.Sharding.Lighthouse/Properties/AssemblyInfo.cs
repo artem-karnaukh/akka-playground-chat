@@ -5,12 +5,12 @@ using System.Runtime.InteropServices;
 // General Information about an assembly is controlled through the following 
 // set of attributes. Change these attribute values to modify the information
 // associated with an assembly.
-[assembly: AssemblyTitle("AkkaPlayground")]
+[assembly: AssemblyTitle("AkkaNET.Sharding.Lighthouse")]
 [assembly: AssemblyDescription("")]
 [assembly: AssemblyConfiguration("")]
-[assembly: AssemblyCompany("")]
-[assembly: AssemblyProduct("AkkaPlayground")]
-[assembly: AssemblyCopyright("Copyright ©  2015")]
+[assembly: AssemblyCompany("E6410-00")]
+[assembly: AssemblyProduct("AkkaNET.Sharding.Lighthouse")]
+[assembly: AssemblyCopyright("Copyright © E6410-00 2016")]
 [assembly: AssemblyTrademark("")]
 [assembly: AssemblyCulture("")]
 
@@ -20,7 +20,7 @@ using System.Runtime.InteropServices;
 [assembly: ComVisible(false)]
 
 // The following GUID is for the ID of the typelib if this project is exposed to COM
-[assembly: Guid("70aa70b7-631f-4ad1-842f-a11f3a4d93fc")]
+[assembly: Guid("6b2e6871-3975-4611-8bb4-3ea7a432925c")]
 
 // Version information for an assembly consists of the following four values:
 //
