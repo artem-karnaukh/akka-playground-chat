@@ -1,5 +1,5 @@
 ﻿using Akka.Actor;
-using Akka.Persistence.Sqlite;
+using Akka.Persistence.SqlServer;
 using Akka.Routing;
 using AkkaPlaygrond.Web.Actors;
 using AkkaPlayground.Core.Actors;
@@ -29,17 +29,11 @@ namespace AkkaPlaygrond.Web
             RouteConfig.RegisterRoutes(RouteTable.Routes);
             BundleConfig.RegisterBundles(BundleTable.Bundles);
 
-            ActorSystem = ActorSystem.Create("akka-persistance");
-            
-            var persistance = SqlitePersistence.Get(ActorSystem);
-
-        
-            
-            var userRouter =  ActorSystem.ActorOf(Props.Create<UserBucket>().WithRouter(FromConfig.Instance), "user-buckets");
-            var chatRouter = ActorSystem.ActorOf(Props.Create<ChatBucket>().WithRouter(FromConfig.Instance), "chat-buckets");
+            ActorSystem = ActorSystem.Create("AkkaCluster");
+            SqlServerPersistence.Get(ActorSystem);
 
             SystemActors.SignalRActor =
-                ActorSystem.ActorOf(Props.Create(() => new SignalRActor(userRouter, chatRouter, ActorRefs.Nobody)), "signalr");
+                ActorSystem.ActorOf(Props.Create(() => new SignalRActor()), "signalr");
         }
 
         protected void Application_End()

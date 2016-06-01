@@ -1,5 +1,9 @@
 ﻿using Akka.Actor;
+using Akka.Cluster;
+using Akka.Cluster.Sharding;
 using AkkaPlaygrond.Web.Models;
+using AkkaPlayground.Core.Actors;
+using AkkaPlayground.Messages;
 using AkkaPlayground.Messages.Commands;
 using AkkaPlayground.Messages.Events;
 using AkkaPlayground.Messages.Messages;
@@ -7,90 +11,115 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Web;
+using static Akka.Cluster.ClusterEvent;
 
 namespace AkkaPlaygrond.Web.Actors
 {
-    public class SignalRActor : ReceiveActor
+    public class SignalRActor : ReceiveActor, IWithUnboundedStash
     {
-        protected readonly IActorRef _userBuckerRouter;
+        public IStash Stash { get;set; }
 
-        protected readonly IActorRef _chatBucketRouter;
+        private IActorRef Region { get; set; }
 
-        protected readonly IActorRef _userIndex;
+        private Cluster Cluster { get; set; }
 
-        public SignalRActor(IActorRef userBucketRouter, IActorRef chatBucketRouter, IActorRef userIndex)
+        public SignalRActor()
         {
-            _userBuckerRouter = userBucketRouter;
-            _chatBucketRouter = chatBucketRouter;
-            _userIndex = userIndex;
-
-            Receive();
+            Cluster = Akka.Cluster.Cluster.Get(Context.System);
+            Cluster.Subscribe(Self, ClusterEvent.InitialStateAsEvents, new[] { typeof(ClusterEvent.IMemberEvent),
+                typeof(ClusterEvent.UnreachableMember) });
+            HeatingUp();
         }
 
-        private void Receive()
+        private void HeatingUp()
+        {
+            Receive<object>(x =>
+            {
+                if (x is MemberUp)
+                {
+                    Become(Ready);
+                    Region = ClusterSharding.Get(Context.System).Start(
+                        typeName: typeof(User).Name,
+                        entityProps: Props.Create<User>(),
+                        settings: ClusterShardingSettings.Create(Context.System),
+                        messageExtractor: new MessageExtractor(10)
+                        );
+
+                    Stash.UnstashAll();
+                }
+                else
+                {
+                    Stash.Stash();
+                }
+            });
+        }
+
+        private void Ready()
         {
             Receive<RegisterModel>(register =>
             {
-                _userBuckerRouter.Tell(new RegisterUserCommand(register.UserId, register.UserName, register.Email));
+                var command = new RegisterUserCommand(register.UserId, register.UserName, register.Email);
+                var envelope = new ShardEnvelope(command.Id.ToString(), command);
+                Region.Tell(envelope);
             });
 
 
-            Receive<GetUsersBySearchString>(mes =>
-            {
-                _userIndex.Ask<UserSearchResult>(mes).PipeTo(Sender, Self);
-            });
+            //Receive<GetUsersBySearchString>(mes =>
+            //{
+            //    _userIndex.Ask<UserSearchResult>(mes).PipeTo(Sender, Self);
+            //});
 
-            Receive<GetUserByLogin>(mes =>
-            {
-                _userIndex.Ask(mes).PipeTo(Sender, Self);
-            });
+            //Receive<GetUserByLogin>(mes =>
+            //{
+            //    _userIndex.Ask(mes).PipeTo(Sender, Self);
+            //});
 
-            Receive<SubscribeToUserCommand>(mes =>
-            {
-                _userBuckerRouter.Ask<SubscribedToUserEvent>(mes).PipeTo(Sender, Self);
-            });
+            //Receive<SubscribeToUserCommand>(mes =>
+            //{
+            //    _userBuckerRouter.Ask<SubscribedToUserEvent>(mes).PipeTo(Sender, Self);
+            //});
 
-            Receive<GetUserSubscribedToList>(mes =>
-            {
-                _userBuckerRouter.Ask<SubscribedToListResult>(mes).PipeTo(Sender, Self);
-            });
+            //Receive<GetUserSubscribedToList>(mes =>
+            //{
+            //    _userBuckerRouter.Ask<SubscribedToListResult>(mes).PipeTo(Sender, Self);
+            //});
 
-            Receive<GetPrivateChatWithUser>(mes =>
-            {
-                _userBuckerRouter.Ask<UserPrivateChatReult>(mes).PipeTo(Sender, Self);
-            });
+            //Receive<GetPrivateChatWithUser>(mes =>
+            //{
+            //    _userBuckerRouter.Ask<UserPrivateChatReult>(mes).PipeTo(Sender, Self);
+            //});
 
-            Receive<CreateChatCommand>(mes =>
-            {
-                _chatBucketRouter.Ask<ChatCreatedEvent>(mes).PipeTo(Sender, Self);
-            });
+            //Receive<CreateChatCommand>(mes =>
+            //{
+            //    _chatBucketRouter.Ask<ChatCreatedEvent>(mes).PipeTo(Sender, Self);
+            //});
 
-            Receive<AddMessageToChat>(cmd =>
-            {
-                _chatBucketRouter.Tell(cmd);
-            });
+            //Receive<AddMessageToChat>(cmd =>
+            //{
+            //    _chatBucketRouter.Tell(cmd);
+            //});
 
-            Receive<GetChatHistory>(mes =>
-            {
-                _chatBucketRouter.Ask<ChatHistoryResult>(mes).PipeTo(Sender, Self);
-            });
+            //Receive<GetChatHistory>(mes =>
+            //{
+            //    _chatBucketRouter.Ask<ChatHistoryResult>(mes).PipeTo(Sender, Self);
+            //});
 
-            Receive<UserRegisteredEvent>(evt =>
-            {
-                SignalREventPusher pusher = new SignalREventPusher();
-                pusher.PlayerJoined(evt.Id, evt.Name, evt.Email);
-            });
+            //Receive<UserRegisteredEvent>(evt =>
+            //{
+            //    SignalREventPusher pusher = new SignalREventPusher();
+            //    pusher.PlayerJoined(evt.Id, evt.Name, evt.Email);
+            //});
 
-            Receive<ChatMessageAddedEvent>(evt =>
-            {
-                SignalREventPusher pusher = new SignalREventPusher();
-                pusher.ChatMessageAdded(evt);
-            });
+            //Receive<ChatMessageAddedEvent>(evt =>
+            //{
+            //    SignalREventPusher pusher = new SignalREventPusher();
+            //    pusher.ChatMessageAdded(evt);
+            //});
 
-            Receive<GetUserChats>(mes =>
-            {
-                _userBuckerRouter.Ask<UserChatsResult>(mes).PipeTo(Sender, Self);
-            });
+            //Receive<GetUserChats>(mes =>
+            //{
+            //    _userBuckerRouter.Ask<UserChatsResult>(mes).PipeTo(Sender, Self);
+            //});
 
         }
     }
