@@ -1,7 +1,7 @@
 ﻿using Akka.Actor;
 using AkkaPlaygrond.Web.Actors;
 using AkkaPlaygrond.Web.Models;
-using AkkaPlayground.Core.Entities;
+
 using AkkaPlayground.Messages.Commands;
 using AkkaPlayground.Messages.Events;
 using AkkaPlayground.Messages.Messages;
@@ -13,30 +13,13 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
 using System.Web;
+using MongoDB.Driver;
 
 namespace AkkaPlaygrond.Web.Hubs
 {
     [HubName("userHub")]
     public class UserHub : Hub
     {
-        public Guid Register(RegisterModel model)
-        {
-            Guid userId = Guid.NewGuid();
-            model.UserId = userId;
-            SystemActors.SignalRActor.Tell(model, ActorRefs.Nobody);
-            return userId;
-        }
-
-        public UserFound Login(string login)
-        {
-            object result = SystemActors.SignalRActor.Ask(new GetUserByLogin(login)).Result;
-            if (result is UserNotFound)
-            {
-                throw new ArgumentNullException();
-            }
-            return (UserFound)result;
-        }
-
         public void JoinSignalRChatGroups(Guid userId)
         {
             UserChatsResult result = GetUserChats(userId);

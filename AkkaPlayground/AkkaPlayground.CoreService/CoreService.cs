@@ -16,9 +16,8 @@ namespace AkkaPlayground.CoreService
 
         public bool Start(HostControl hostControl)
         {
-            ClusterSystem = ActorSystem.Create("akka-persistance");
+            ClusterSystem = ActorSystem.Create("AkkaCluster");
             //var userIndexActor = ClusterSystem.ActorOf(Props.Create(() => new UserIndex()), "user-index");
-            var persistance = Akka.Persistence.Sqlite.SqlitePersistence.Get(ClusterSystem);
             return true;
         }
 

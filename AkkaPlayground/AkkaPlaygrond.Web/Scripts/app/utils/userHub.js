@@ -50,14 +50,6 @@
         return self.userHub.server.getUsersContacts(userId);
     }
 
-    function register(data) {
-        return self.userHub.server.register(data);
-    }
-
-    function login(value) {
-        return self.userHub.server.login(value);
-    }
-
     function addToContactList(userId, targetUserId) {
         return self.userHub.server.addToContactList(userId, targetUserId);
     }
@@ -83,8 +75,6 @@
         createChat: createChat,
         addChatMessage: addChatMessage,
         getUsersContacts: getUsersContacts,
-        register: register,
-        login: login,
         addToContactList: addToContactList,
         search: search,
         getUserChats: getUserChats,

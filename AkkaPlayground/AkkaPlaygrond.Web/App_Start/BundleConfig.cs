@@ -24,7 +24,8 @@ namespace AkkaPlaygrond.Web
                         "~/Scripts/app/utils/userContext.js",
                         "~/Scripts/app/controllers/chatCtrl.js",
                         "~/Scripts/app/controllers/chatsListCtrl.js",
-                        "~/Scripts/app/utils/userHub.js"
+                        "~/Scripts/app/utils/userHub.js",
+                        "~/Scripts/app/services/userSvc.js"
                         ));
 
             bundles.Add(new StyleBundle("~/Content/css")

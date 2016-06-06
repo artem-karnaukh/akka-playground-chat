@@ -7,22 +7,17 @@ using System.Threading.Tasks;
 
 namespace AkkaPlayground.Messages.Commands
 {
-    public class RegisterUserCommand : IConsistentHashable
+    public class RegisterUserCommand
     {
         public readonly Guid Id;
-        public readonly string Name;
+        public readonly string Login;
         public readonly string Email;
 
-        public RegisterUserCommand(Guid id, string name, string email)
+        public RegisterUserCommand(Guid id, string login, string email)
         {
             Id = id;
-            Name = name;
+            Login = login;
             Email = email;
-        }
-
-        public object ConsistentHashKey
-        {
-            get { return Id; }
         }
     }
 }

@@ -7,7 +7,7 @@ using System.Threading.Tasks;
 
 namespace AkkaPlayground.Messages.Commands
 {
-    public class ChangeUserNameEmailCommand : IConsistentHashable
+    public class ChangeUserNameEmailCommand
     {
         public readonly Guid Id;
         public readonly string Name;
@@ -18,11 +18,6 @@ namespace AkkaPlayground.Messages.Commands
             Id = id;
             Name = name;
             Email = email;
-        }
-
-        public object ConsistentHashKey
-        {
-            get { return Id; }
         }
     }
 }

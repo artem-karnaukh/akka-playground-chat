@@ -56,11 +56,20 @@ namespace AkkaPlaygrond.Web.Actors
 
         private void Ready()
         {
+
+            Context.System.EventStream.Subscribe(Self, typeof(UserRegisteredEvent));
+
             Receive<RegisterModel>(register =>
             {
                 var command = new RegisterUserCommand(register.UserId, register.UserName, register.Email);
                 var envelope = new ShardEnvelope(command.Id.ToString(), command);
                 Region.Tell(envelope);
+            });
+
+            Receive<UserRegisteredEvent>(evt =>
+            {
+                SignalREventPusher pusher = new SignalREventPusher();
+                pusher.PlayerJoined(evt.Id, evt.Login, evt.Email);
             });
 
 
@@ -104,11 +113,7 @@ namespace AkkaPlaygrond.Web.Actors
             //    _chatBucketRouter.Ask<ChatHistoryResult>(mes).PipeTo(Sender, Self);
             //});
 
-            //Receive<UserRegisteredEvent>(evt =>
-            //{
-            //    SignalREventPusher pusher = new SignalREventPusher();
-            //    pusher.PlayerJoined(evt.Id, evt.Name, evt.Email);
-            //});
+
 
             //Receive<ChatMessageAddedEvent>(evt =>
             //{

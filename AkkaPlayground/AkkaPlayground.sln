@@ -1,10 +1,8 @@
 ﻿
 Microsoft Visual Studio Solution File, Format Version 12.00
-# Visual Studio 2013
-VisualStudioVersion = 12.0.21005.1
+# Visual Studio 14
+VisualStudioVersion = 14.0.25123.0
 MinimumVisualStudioVersion = 10.0.40219.1
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "AkkaPlayground", "AkkaPlayground\AkkaPlayground.csproj", "{4DCB508A-66AB-46A1-A8B4-F7EC7AE880E0}"
-EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "AkkaPlayground.Core", "AkkaPlayground.Core\AkkaPlayground.Core.csproj", "{B9BF7BB9-DEAC-4075-A578-D2B5DE821B4F}"
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "AkkaPlayground.Messages", "AkkaPlayground.Messages\AkkaPlayground.Messages.csproj", "{F390587E-D65A-4096-8395-09446E78C795}"
@@ -13,16 +11,16 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "AkkaPlaygrond.Web", "AkkaPl
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "AkkaPlayground.CoreService", "AkkaPlayground.CoreService\AkkaPlayground.CoreService.csproj", "{FF34243A-F24A-4624-925A-CFDB24BAE471}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "AkkaPlayground.Lighthouse", "AkkaNET.Sharding.Lighthouse\AkkaPlayground.Lighthouse.csproj", "{6B2E6871-3975-4611-8BB4-3EA7A432925C}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "AkkaPlayground.Projections", "AkkaPlayground.Projections\AkkaPlayground.Projections.csproj", "{52DE3CB3-2103-48FB-8075-27410F9A649E}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
 		Release|Any CPU = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(ProjectConfigurationPlatforms) = postSolution
-		{4DCB508A-66AB-46A1-A8B4-F7EC7AE880E0}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
-		{4DCB508A-66AB-46A1-A8B4-F7EC7AE880E0}.Debug|Any CPU.Build.0 = Debug|Any CPU
-		{4DCB508A-66AB-46A1-A8B4-F7EC7AE880E0}.Release|Any CPU.ActiveCfg = Release|Any CPU
-		{4DCB508A-66AB-46A1-A8B4-F7EC7AE880E0}.Release|Any CPU.Build.0 = Release|Any CPU
 		{B9BF7BB9-DEAC-4075-A578-D2B5DE821B4F}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
 		{B9BF7BB9-DEAC-4075-A578-D2B5DE821B4F}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{B9BF7BB9-DEAC-4075-A578-D2B5DE821B4F}.Release|Any CPU.ActiveCfg = Release|Any CPU
@@ -39,6 +37,14 @@ Global
 		{FF34243A-F24A-4624-925A-CFDB24BAE471}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{FF34243A-F24A-4624-925A-CFDB24BAE471}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{FF34243A-F24A-4624-925A-CFDB24BAE471}.Release|Any CPU.Build.0 = Release|Any CPU
+		{6B2E6871-3975-4611-8BB4-3EA7A432925C}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{6B2E6871-3975-4611-8BB4-3EA7A432925C}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{6B2E6871-3975-4611-8BB4-3EA7A432925C}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{6B2E6871-3975-4611-8BB4-3EA7A432925C}.Release|Any CPU.Build.0 = Release|Any CPU
+		{52DE3CB3-2103-48FB-8075-27410F9A649E}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{52DE3CB3-2103-48FB-8075-27410F9A649E}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{52DE3CB3-2103-48FB-8075-27410F9A649E}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{52DE3CB3-2103-48FB-8075-27410F9A649E}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

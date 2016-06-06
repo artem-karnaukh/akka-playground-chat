@@ -1,9 +1,8 @@
 ﻿angular.module('Chat')
-.controller("RegisterCtrl", function ($scope, $http, $ionicPopup, UserContext, UserHub) {
+.controller("RegisterCtrl", function ($scope,  $ionicPopup, UserHub, UserService) {
 
     var registeringUserId = '';
     $scope.registerModel = { login: "", email: "" };
-
 
     UserHub.initialized.then(function () {
         UserHub.subscribe('userJoined', function (id, userName, email) {
@@ -27,8 +26,8 @@
 
     $scope.register = function () {
         var data = { UserName: $scope.registerModel.login, Email: $scope.registerModel.email };
-        UserHub.register(data).done(function (result) {
-            registeringUserId = result;
+        UserService.register(data).then(function (result) {
+            registeringUserId = result.data;
         });
     }
 });

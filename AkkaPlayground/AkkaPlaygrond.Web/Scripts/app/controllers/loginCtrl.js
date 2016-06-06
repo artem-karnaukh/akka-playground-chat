@@ -1,5 +1,5 @@
 ﻿angular.module('Chat')
-.controller("LoginCtrl", function ($scope, $http, $state,  $ionicPopup, UserContext, UserHub) {
+.controller("LoginCtrl", function ($scope, $state, $ionicPopup, UserContext, UserService) {
 
     $scope.model = { login : '' }
     
@@ -8,12 +8,12 @@
     };
 
     $scope.submit = function () {
-        UserHub.login($scope.model.login).done(function (result) {
-            if (result && result.Id) {
-                UserContext.setUser(result);
+        UserService.login($scope.model.login).then(function (result) {
+            if (result.data && result.data.Id) {
+                UserContext.setUser(result.data);
                 $state.go('tab.contacts')
             }
-        }).fail(function(result) {
+        },function (result) {
             $ionicPopup.alert({
                 title: 'Error',
                 template: 'Wrong user login'
