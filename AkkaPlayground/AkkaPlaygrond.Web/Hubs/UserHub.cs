@@ -29,39 +29,8 @@ namespace AkkaPlaygrond.Web.Hubs
             }
         }     
 
-        public SubscribedToUserEvent AddToContactList(Guid userId, Guid targetUserId)
-        {
-            SubscribeToUserCommand command = new SubscribeToUserCommand(userId, targetUserId);
-            SubscribedToUserEvent result = SystemActors.SignalRActor.Ask<SubscribedToUserEvent>(command).Result;
-            return result;
-        }
 
-        public List<UserFoundModel> Search(Guid? currentUserId, string searchString)
-        {
-            var searchTask = SystemActors.SignalRActor.Ask<UserSearchResult>(new GetUsersBySearchString(searchString));
-            UserSearchResult usersFound = searchTask.Result;
 
-            List<UserFoundModel> result =  usersFound.Users.Select(x => new UserFoundModel()
-                {
-                    Id = x.Id,
-                    Email = x.Email,
-                    Name = x.Name
-                }).ToList();
-
-            if (currentUserId.HasValue)
-            {
-                SubscribedToListResult userContacts = 
-                    SystemActors.SignalRActor.Ask<SubscribedToListResult>(new GetUserSubscribedToList(currentUserId.Value)).Result;
-                List<Guid> userContactIds = userContacts.SubscribedToList.Select(x => x.Id).ToList();
-                foreach(var item in result)
-                {
-                    item.IsAlreadyAdded = userContactIds.Contains(item.Id);
-                    item.IsCurrentUser = item.Id == currentUserId;
-                }
-            }
-
-            return result;
-        }
 
         public List<UserContactReadModel> GetUsersContacts(Guid userId)
         {

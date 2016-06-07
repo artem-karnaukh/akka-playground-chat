@@ -50,9 +50,6 @@
         return self.userHub.server.getUsersContacts(userId);
     }
 
-    function addToContactList(userId, targetUserId) {
-        return self.userHub.server.addToContactList(userId, targetUserId);
-    }
 
     function search(userId, value) {
         return self.userHub.server.search(userId, value);
@@ -75,7 +72,6 @@
         createChat: createChat,
         addChatMessage: addChatMessage,
         getUsersContacts: getUsersContacts,
-        addToContactList: addToContactList,
         search: search,
         getUserChats: getUserChats,
         joinSignalRGroup: joinSignalRGroup,

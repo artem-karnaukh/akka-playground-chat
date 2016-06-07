@@ -11,6 +11,8 @@ using AkkaPlayground.Messages.Events;
 using Akka.Actor;
 using AkkaPlayground.Messages.Messages;
 using AkkaPlayground.Core.Actors.Views;
+using Akka.Cluster.Sharding;
+using AkkaPlayground.Messages;
 
 namespace AkkaPlayground.Core.Actors
 {
@@ -18,6 +20,8 @@ namespace AkkaPlayground.Core.Actors
     {
         private UserEntity State = null;
         private IActorRef _userView;
+        private IActorRef _userContactsView;
+        private IActorRef _region;
 
         public override string PersistenceId { get { return Self.Path.Name; } }
 
@@ -27,6 +31,10 @@ namespace AkkaPlayground.Core.Actors
             RecoverAny(UpdateState);
 
             _userView = Context.ActorOf(Props.Create(() => new UserView(PersistenceId)), "users-projection-" + PersistenceId);
+            _userContactsView = Context.ActorOf(Props.Create(() => new UserContactsView(PersistenceId)),
+                "user-contact-list-projection-" + PersistenceId);
+
+
         }
 
 
@@ -46,17 +54,35 @@ namespace AkkaPlayground.Core.Actors
             message.Match()
                 .With<ChangeUserNameEmailCommand>(change =>
                 {
-                    var userNameChanged = new UserNameEmailChangedEvent(change.Id, change.Name, change.Email);
-                    Persist(userNameChanged, UpdateState);
+                    var @event = new UserNameEmailChangedEvent(change.Id, change.Name, change.Email);
+                    Persist(@event, UpdateState);
+                })
+                .With<SubscribeToUserCommand>(add =>
+                {
+                    if (!State.SubscribedToList.Any(x => x == add.ContactUserId))
+                    {
+                        //var s = ClusterSharding.Get(Context.System);
+                        //var set = ClusterShardingSettings.Create(Context.System);
+                        //var region = s.Start(
+                        //                typeName: typeof(User).Name,
+                        //                entityProps: Props.Create<User>(),
+                        //                settings: set,
+                        //                messageExtractor: new MessageExtractor(10));
+
+                        //var envelop = new ShardEnvelope(add.ContactUserId.ToString(), 
+                        //    new GetUserById(add.ContactUserId));
+                        //GetUserByIdResult contactUser = region.Ask<GetUserByIdResult>(envelop).Result;
+
+                        //var @event = new SubscribedToUserEvent(add.UserId, add.ContactUserId, contactUser.Login, contactUser.Name);
+                        //Persist(@event, UpdateState);
+                    }
+                })
+                .With<GetUserById>(x =>
+                {
+                    Sender.Tell(new GetUserByIdResult(State.Login, State.Name));
                 });
-                //.With<SubscribeToUserCommand>(add =>
-                //{
-                //    if (!State.SubscribedToList.Any(x => x == add.TargetUserId))
-                //    {
-                //        var @event = new SubscribedToUserEvent(add.UserId, add.TargetUserId);
-                //        Persist<SubscribedToUserEvent>(@event, UpdateState);
-                //    }
-                //})
+                
+
                 //.With<SubscribedToUserEvent>(cmd =>
                 //{
                 //    if (!State.FollowersList.Any(x => x == cmd.TargetUserId))
@@ -109,7 +135,7 @@ namespace AkkaPlayground.Core.Actors
             e.Match()
             .With<UserRegisteredEvent>(x =>
             {
-                State = new UserEntity(x.Id, x.Login, x.Email);
+                State = new UserEntity(x.Id, x.Login, x.Login, x.Email);
                 if (!IsRecovering)
                 {
                     Context.System.EventStream.Publish(x);
@@ -124,20 +150,11 @@ namespace AkkaPlayground.Core.Actors
                 {
                     Context.System.EventStream.Publish(x);
                 }
+            })
+            .With<SubscribedToUserEvent>(x =>
+            {
+                //userView.Tell(new Update(isAwait: true));
             });
-            //.With<SubscribedToUserEvent>(x =>
-            //{
-            //    State.SubscribedToList.Add(x.TargetUserId);
-            //    Sender.Tell(x);
-
-            //    if (!IsRecovering)
-            //    {
-            //        string path = "user/user-buckets/*/" + x.TargetUserId.ToString();
-            //        Context.System.ActorSelection(path).Tell(x);
-            //    }
-            //    //userView.Tell(new Update(isAwait: true));
-
-            //})
             //.With<UserAddedToFollowersEvent>(x =>
             //{
             //    State.FollowersList.Add(x.TargetUserId);

@@ -8,7 +8,7 @@
 
         <ion-list>
             <ion-item class="item-button-right" ng-repeat="user in users">
-                {{user.Name}}
+                {{user.Login}}
                 <button class="button button-calm" ng-click="add(user)" ng-if="!user.IsAlreadyAdded && !user.IsCurrentUser">
                     <i class="icon ion-ios-plus-outline"></i>
                 </button>

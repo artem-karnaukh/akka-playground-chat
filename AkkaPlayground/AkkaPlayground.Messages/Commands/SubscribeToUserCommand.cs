@@ -7,21 +7,16 @@ using System.Threading.Tasks;
 
 namespace AkkaPlayground.Messages.Commands
 {
-    public class SubscribeToUserCommand : IConsistentHashable
+    public class SubscribeToUserCommand 
     {
         public Guid UserId { get; private set; }
 
-        public Guid TargetUserId { get; private set; }
+        public Guid ContactUserId { get; private set; }
 
         public SubscribeToUserCommand(Guid userId, Guid userToAddId)
         {
             UserId = userId;
-            TargetUserId = userToAddId;
-        }
-
-        public object ConsistentHashKey
-        {
-            get { return UserId;  }
+            ContactUserId = userToAddId;
         }
     }
 }

@@ -72,21 +72,12 @@ namespace AkkaPlaygrond.Web.Actors
                 pusher.PlayerJoined(evt.Id, evt.Login, evt.Email);
             });
 
+            Receive<SubscribeToUserCommand>(mes =>
+            {
+                var envelope = new ShardEnvelope(mes.UserId.ToString(), mes);
+                Region.Tell(envelope);
+            });
 
-            //Receive<GetUsersBySearchString>(mes =>
-            //{
-            //    _userIndex.Ask<UserSearchResult>(mes).PipeTo(Sender, Self);
-            //});
-
-            //Receive<GetUserByLogin>(mes =>
-            //{
-            //    _userIndex.Ask(mes).PipeTo(Sender, Self);
-            //});
-
-            //Receive<SubscribeToUserCommand>(mes =>
-            //{
-            //    _userBuckerRouter.Ask<SubscribedToUserEvent>(mes).PipeTo(Sender, Self);
-            //});
 
             //Receive<GetUserSubscribedToList>(mes =>
             //{

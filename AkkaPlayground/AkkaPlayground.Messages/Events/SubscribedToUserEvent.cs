@@ -11,12 +11,18 @@ namespace AkkaPlayground.Messages.Events
     {
         public Guid UserId { get; private set; }
 
-        public Guid TargetUserId { get; private set; }
+        public Guid ContactUserId { get; private set; }
 
-        public SubscribedToUserEvent(Guid userId, Guid contactListUserId)
+        public string ContactLogin { get; private set; }
+
+        public string ContactName { get; private set; }
+
+        public SubscribedToUserEvent(Guid userId, Guid contactListUserId, string contactLogin, string contactName)
         {
             UserId = userId;
-            TargetUserId = contactListUserId;
+            ContactUserId = contactListUserId;
+            ContactLogin = contactLogin;
+            ContactName = contactName;
         }
     }
 }

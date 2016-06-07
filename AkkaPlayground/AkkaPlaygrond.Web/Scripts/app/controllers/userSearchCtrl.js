@@ -1,5 +1,5 @@
 ﻿angular.module('Chat')
-.controller("UserSearchCtrl", function ($scope, $http, UserContext, UserHub) {
+.controller("UserSearchCtrl", function ($scope, $http, UserContext, UserHub, UserService) {
 
 
     $scope.users = [];
@@ -14,16 +14,17 @@
             return;
         }
 
-        UserHub.addToContactList(loggedInUser.Id, user.Id).done(function (response) {
-            $scope.$apply(function () {
-                for (var i = 0; i < $scope.users.length; i++) {
-                    var item = $scope.users[i];
-                    if (item.Id == response.TargetUserId) {
-                        item.IsAlreadyAdded = true;
-                    }
-                }
-            });
-        });
+        UserService.addToContactList(loggedInUser.Id, user.Id);
+        //    .then(function (response) {
+        //    $scope.$apply(function () {
+        //        for (var i = 0; i < $scope.users.length; i++) {
+        //            var item = $scope.users[i];
+        //            if (item.Id == response.TargetUserId) {
+        //                item.IsAlreadyAdded = true;
+        //            }
+        //        }
+        //    });
+        //});
     };
 
     $scope.$watch('searchModel.login', function (newValue, oldValue) {
@@ -31,11 +32,10 @@
             $scope.users = [];
             return;
         }
+        
         var loggedInUser = UserContext.getUser();
-        UserHub.search(loggedInUser.Id, newValue).done(function (data) {
-            $scope.$apply(function () {
-                $scope.users = data;
-            })
+        UserService.search(loggedInUser.Id, newValue).then(function (response) {
+            $scope.users = response.data;
         });
     });
 
