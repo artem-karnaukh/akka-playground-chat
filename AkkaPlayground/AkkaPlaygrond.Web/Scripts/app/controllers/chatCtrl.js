@@ -21,7 +21,6 @@
 
     ready.promise.then(function () {
         $rootScope.$on('chatMessageAdded', function (e, message) {
-            debugger
             if (chatId != message.ChatId) {
                 return;
             }

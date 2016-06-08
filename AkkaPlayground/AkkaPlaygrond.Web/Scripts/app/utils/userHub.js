@@ -26,10 +26,6 @@
         self.userHub.off(eventName, callback);
     }
 
-    function joinSignalRGroup(chatId) {
-        return self.userHub.server.joinSignalRGroup(chatId);
-    };
-
     function getChatLog(chatId) {
         return self.userHub.server.getChatLog(chatId);
     }
@@ -50,14 +46,13 @@
         return self.userHub.server.getUsersContacts(userId);
     }
 
-
-    function search(userId, value) {
-        return self.userHub.server.search(userId, value);
-    }
-
     function getUserChats(userId) {
         return self.userHub.server.getUserChats(userId);
     }
+
+    function joinSignalRGroup(groupId) {
+        return self.userHub.server.joinSignalRGroup(groupId);
+    };
 
     function joinSignalRChatGroups(userId) {
         return self.userHub.server.joinSignalRChatGroups(userId);
@@ -72,7 +67,6 @@
         createChat: createChat,
         addChatMessage: addChatMessage,
         getUsersContacts: getUsersContacts,
-        search: search,
         getUserChats: getUserChats,
         joinSignalRGroup: joinSignalRGroup,
         joinSignalRChatGroups: joinSignalRChatGroups

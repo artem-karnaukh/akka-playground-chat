@@ -34,7 +34,16 @@ namespace AkkaPlayground.Core.Actors
             _userContactsView = Context.ActorOf(Props.Create(() => new UserContactsView(PersistenceId)),
                 "user-contact-list-projection-" + PersistenceId);
 
-
+            ClusterSharding clusterSharding = ClusterSharding.Get(Context.System);
+            _region = clusterSharding.ShardRegion(typeof(User).Name);
+            if (_region == null)
+            {
+                _region = clusterSharding.Start(
+                                typeName: typeof(User).Name,
+                                entityProps: Props.Create<User>(),
+                                settings: ClusterShardingSettings.Create(Context.System),
+                                messageExtractor: new MessageExtractor(10));
+            }
         }
 
 
@@ -52,45 +61,35 @@ namespace AkkaPlayground.Core.Actors
         protected void Initialized(object message)
         {
             message.Match()
-                .With<ChangeUserNameEmailCommand>(change =>
+                .With<ChangeUserNameEmailCommand>(cmd =>
                 {
-                    var @event = new UserNameEmailChangedEvent(change.Id, change.Name, change.Email);
+                    var @event = new UserNameEmailChangedEvent(cmd.Id, cmd.Name, cmd.Email);
                     Persist(@event, UpdateState);
                 })
-                .With<SubscribeToUserCommand>(add =>
+                .With<SubscribeToUserCommand>(cmd =>
                 {
-                    if (!State.SubscribedToList.Any(x => x == add.ContactUserId))
+                    if (State.Id != cmd.ContactUserId && !State.SubscribedToList.Any(x => x == cmd.ContactUserId))
                     {
-                        //var s = ClusterSharding.Get(Context.System);
-                        //var set = ClusterShardingSettings.Create(Context.System);
-                        //var region = s.Start(
-                        //                typeName: typeof(User).Name,
-                        //                entityProps: Props.Create<User>(),
-                        //                settings: set,
-                        //                messageExtractor: new MessageExtractor(10));
+                        var envelop = new ShardEnvelope(cmd.ContactUserId.ToString(),
+                            new GetUserById(cmd.ContactUserId));
+                        GetUserByIdResult contactUser = _region.Ask<GetUserByIdResult>(envelop).Result;
 
-                        //var envelop = new ShardEnvelope(add.ContactUserId.ToString(), 
-                        //    new GetUserById(add.ContactUserId));
-                        //GetUserByIdResult contactUser = region.Ask<GetUserByIdResult>(envelop).Result;
-
-                        //var @event = new SubscribedToUserEvent(add.UserId, add.ContactUserId, contactUser.Login, contactUser.Name);
-                        //Persist(@event, UpdateState);
+                        var @event = new SubscribedToUserEvent(cmd.UserId, cmd.ContactUserId, contactUser.Login, contactUser.Name);
+                        Persist(@event, UpdateState);
                     }
                 })
                 .With<GetUserById>(x =>
                 {
                     Sender.Tell(new GetUserByIdResult(State.Login, State.Name));
                 });
-                
-
                 //.With<SubscribedToUserEvent>(cmd =>
                 //{
-                //    if (!State.FollowersList.Any(x => x == cmd.TargetUserId))
+                //    if (!State.FollowersList.Any(x => x == cmd.ContactUserId))
                 //    {
-                //        var @event = new UserAddedToFollowersEvent(cmd.TargetUserId, cmd.UserId);
+                //        var @event = new UserAddedToFollowersEvent(cmd.ContactUserId, cmd.UserId);
                 //        Persist<UserAddedToFollowersEvent>(@event, UpdateState);
                 //    }
-                //})
+                //});
                 //.With<GetUserSubscribedToList>(mes =>
                 //{
                 //    Sender.Tell(null);
@@ -153,7 +152,13 @@ namespace AkkaPlayground.Core.Actors
             })
             .With<SubscribedToUserEvent>(x =>
             {
-                //userView.Tell(new Update(isAwait: true));
+                State.SubscribedToList.Add(x.ContactUserId);
+                _userView.Tell(new Update(isAwait: true));
+
+                if (!IsRecovering)
+                {
+                    Context.System.EventStream.Publish(x);
+                }
             });
             //.With<UserAddedToFollowersEvent>(x =>
             //{

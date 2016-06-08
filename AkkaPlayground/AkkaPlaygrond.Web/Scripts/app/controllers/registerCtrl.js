@@ -7,7 +7,7 @@
     UserHub.initialized.then(function () {
         UserHub.subscribe('userJoined', function (id, userName, email) {
             if (id == registeringUserId) {
-                var alertPopup = $ionicPopup.alert({
+                $ionicPopup.alert({
                     title: 'Success',
                     template: 'User ' + userName + ' was registered.'
                 }).then(function (res) {

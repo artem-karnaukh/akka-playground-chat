@@ -5,9 +5,11 @@ using System.Web;
 
 namespace AkkaPlaygrond.Web.Models
 {
-    public class UserFoundModel
+    public class UserSearchModel
     {
         public Guid Id { get;  set; }
+
+        public string Login { get; set; }
 
         public string Name { get;  set; }
 

@@ -22,7 +22,7 @@ namespace AkkaPlayground.Core.Actors.Views
 
         public override string ViewId
         {
-            get { return "users-projection-"+ _userPersistanceId; }
+            get { return "users-view-"+ _userPersistanceId; }
         }
         
         public override string PersistenceId

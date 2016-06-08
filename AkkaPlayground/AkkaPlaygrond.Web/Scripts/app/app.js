@@ -21,6 +21,7 @@
             if (user) {
                 $state.go('tab.chats');
                 UserHub.initialized.then(function () {
+                    UserHub.joinSignalRGroup(user.Id);
                     UserHub.joinSignalRChatGroups(user.Id);
                 });
             } else {

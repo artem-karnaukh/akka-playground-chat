@@ -29,9 +29,6 @@ namespace AkkaPlaygrond.Web.Hubs
             }
         }     
 
-
-
-
         public List<UserContactReadModel> GetUsersContacts(Guid userId)
         {
             SubscribedToListResult userList = SystemActors.SignalRActor.Ask<SubscribedToListResult>(new GetUserSubscribedToList(userId)).Result;
@@ -79,9 +76,9 @@ namespace AkkaPlaygrond.Web.Hubs
             return result;
         }
 
-        public void JoinSignalRGroup(Guid chatId)
+        public void JoinSignalRGroup(Guid groupId)
         {
-            Groups.Add(Context.ConnectionId, chatId.ToString());
+            Groups.Add(Context.ConnectionId, groupId.ToString());
         }
 
     }

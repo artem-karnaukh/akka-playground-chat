@@ -23,8 +23,12 @@ namespace AkkaPlaygrond.Web.Actors
 
         private Cluster Cluster { get; set; }
 
+        private SignalREventPusher _signalrPusher { get; set; }
+
         public SignalRActor()
         {
+            _signalrPusher = new SignalREventPusher();
+
             Cluster = Akka.Cluster.Cluster.Get(Context.System);
             Cluster.Subscribe(Self, ClusterEvent.InitialStateAsEvents, new[] { typeof(ClusterEvent.IMemberEvent),
                 typeof(ClusterEvent.UnreachableMember) });
@@ -58,6 +62,7 @@ namespace AkkaPlaygrond.Web.Actors
         {
 
             Context.System.EventStream.Subscribe(Self, typeof(UserRegisteredEvent));
+            Context.System.EventStream.Subscribe(Self, typeof(SubscribedToUserEvent));
 
             Receive<RegisterModel>(register =>
             {
@@ -68,14 +73,18 @@ namespace AkkaPlaygrond.Web.Actors
 
             Receive<UserRegisteredEvent>(evt =>
             {
-                SignalREventPusher pusher = new SignalREventPusher();
-                pusher.PlayerJoined(evt.Id, evt.Login, evt.Email);
+                _signalrPusher.PlayerJoined(evt.Id, evt.Login, evt.Email);
             });
 
             Receive<SubscribeToUserCommand>(mes =>
             {
                 var envelope = new ShardEnvelope(mes.UserId.ToString(), mes);
                 Region.Tell(envelope);
+            });
+
+            Receive<SubscribedToUserEvent>(mes =>
+            {
+                _signalrPusher.UserAddedToContactList(mes.UserId, mes.ContactUserId, mes.ContactName);
             });
 
 

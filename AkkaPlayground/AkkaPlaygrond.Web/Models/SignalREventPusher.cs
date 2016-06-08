@@ -22,6 +22,11 @@ namespace AkkaPlaygrond.Web.Models
             _userHubContext.Clients.All.userJoined(id, userName, email);
         }
 
+        public void UserAddedToContactList(Guid userId, Guid contactId, string contactUserName)
+        {
+            _userHubContext.Clients.Group(userId.ToString()).userAddedToContactList(userId, contactId, contactUserName);
+        }
+
         public void ChatMessageAdded(ChatMessageAddedEvent evt)
         {
             _userHubContext.Clients.Group(evt.ChatId.ToString()).chatMessageAdded(evt);
