@@ -20,61 +20,55 @@ namespace AkkaPlaygrond.Web.Hubs
     [HubName("userHub")]
     public class UserHub : Hub
     {
-        public void JoinSignalRChatGroups(Guid userId)
-        {
-            UserChatsResult result = GetUserChats(userId);
-            foreach(var chat in result.Chats)
-            {
-                JoinSignalRGroup(chat.ChatId);
-            }
-        }     
+        //public void JoinSignalRChatGroups(Guid userId)
+        //{
+        //    UserChatsResult result = GetUserChats(userId);
+        //    foreach(var chat in result.Chats)
+        //    {
+        //        JoinSignalRGroup(chat.ChatId);
+        //    }
+        //}     
 
-        public List<UserContactReadModel> GetUsersContacts(Guid userId)
-        {
-            SubscribedToListResult userList = SystemActors.SignalRActor.Ask<SubscribedToListResult>(new GetUserSubscribedToList(userId)).Result;
-            return userList.SubscribedToList;
-        }
+        //public Guid? GetUserChat(Guid currentUserId, Guid targetUserId)
+        //{
+        //    UserPrivateChatReult userChat = SystemActors.SignalRActor.Ask<UserPrivateChatReult>(new GetPrivateChatWithUser(currentUserId, targetUserId)).Result;
 
-        public Guid? GetUserChat(Guid currentUserId, Guid targetUserId)
-        {
-            UserPrivateChatReult userChat = SystemActors.SignalRActor.Ask<UserPrivateChatReult>(new GetPrivateChatWithUser(currentUserId, targetUserId)).Result;
+        //    if (userChat.ChatId.HasValue)
+        //    {
+        //        JoinSignalRGroup(userChat.ChatId.Value);
+        //    }
 
-            if (userChat.ChatId.HasValue)
-            {
-                JoinSignalRGroup(userChat.ChatId.Value);
-            }
+        //    return userChat.ChatId;
+        //}
 
-            return userChat.ChatId;
-        }
+        //public Guid CreateChat(Guid currentUserId, Guid targetUserId)
+        //{
+        //    Guid chatId = Guid.NewGuid();
 
-        public Guid CreateChat(Guid currentUserId, Guid targetUserId)
-        {
-            Guid chatId = Guid.NewGuid();
+        //    var command = new CreateChatCommand(chatId, new List<Guid>() { currentUserId, targetUserId });
+        //    ChatCreatedEvent chatCreated = SystemActors.SignalRActor.Ask<ChatCreatedEvent>(command).Result;
+        //    JoinSignalRGroup(chatCreated.Id);
 
-            var command = new CreateChatCommand(chatId, new List<Guid>() { currentUserId, targetUserId });
-            ChatCreatedEvent chatCreated = SystemActors.SignalRActor.Ask<ChatCreatedEvent>(command).Result;
-            JoinSignalRGroup(chatCreated.Id);
+        //    return chatCreated.Id;
+        //}
 
-            return chatCreated.Id;
-        }
+        //public void AddChatMessage(Guid currentUserId, Guid chatId, string message)
+        //{
+        //    SystemActors.SignalRActor.Tell(new AddMessageToChat(chatId, currentUserId, message));
+        //}
 
-        public void AddChatMessage(Guid currentUserId, Guid chatId, string message)
-        {
-            SystemActors.SignalRActor.Tell(new AddMessageToChat(chatId, currentUserId, message));
-        }
+        //public ChatHistoryResult GetChatLog(Guid chatId)
+        //{
+        //    GetChatHistory message = new GetChatHistory(chatId);
+        //    ChatHistoryResult result = SystemActors.SignalRActor.Ask<ChatHistoryResult>(message).Result;
+        //    return result;
+        //}
 
-        public ChatHistoryResult GetChatLog(Guid chatId)
-        {
-            GetChatHistory message = new GetChatHistory(chatId);
-            ChatHistoryResult result = SystemActors.SignalRActor.Ask<ChatHistoryResult>(message).Result;
-            return result;
-        }
-
-        public UserChatsResult GetUserChats(Guid userId)
-        {
-            UserChatsResult result = SystemActors.SignalRActor.Ask<UserChatsResult>(new GetUserChats(userId)).Result;
-            return result;
-        }
+        //public UserChatsResult GetUserChats(Guid userId)
+        //{
+        //    UserChatsResult result = SystemActors.SignalRActor.Ask<UserChatsResult>(new GetUserChats(userId)).Result;
+        //    return result;
+        //}
 
         public void JoinSignalRGroup(Guid groupId)
         {

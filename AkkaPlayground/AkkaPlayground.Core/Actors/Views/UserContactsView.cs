@@ -8,46 +8,37 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+using Akka.Actor;
 
 namespace AkkaPlayground.Core.Actors.Views
 {
-    public class UserContactsView : PersistentView
+    public class UserContactsView : ReceiveActor
     {
         private MongoContext _mongoContext;
-        private string _userPersistanceId;
 
-        public override string ViewId
-        {
-            get { return "user-contact-list-view-" + _userPersistanceId; }
-        }
+        private string Id { get; set; }
 
-        public override string PersistenceId
+        public UserContactsView()
         {
-            get { return _userPersistanceId; }
-        }
-
-        public UserContactsView(string userPersistanceId)
-        {
-            _userPersistanceId = userPersistanceId;
             _mongoContext = new MongoContext();
+
+            Ready();
         }
 
-        protected override bool Receive(object @event)
+        private void Ready()
         {
-            return @event.Match()
-                .With<SubscribedToUserEvent>(x =>
-                {
-                    UserContactsProjection userProjection = new UserContactsProjection()
-                    {
-                        Id = Guid.NewGuid(),
-                        UserId = x.UserId,
-                        ContactUserId = x.ContactUserId,
-                        ContactLogin = x.ContactLogin,
-                        ContactName = x.ContactName
-                    };
-                    _mongoContext.UserContacts().InsertOne(userProjection);
-                })
-                .WasHandled;
+            Receive<SubscribedToUserEvent>(x =>
+              {
+                  UserContactsProjection userProjection = new UserContactsProjection()
+                  {
+                      Id = Guid.NewGuid(),
+                      UserId = x.UserId,
+                      ContactUserId = x.ContactUserId,
+                      ContactLogin = x.ContactLogin,
+                      ContactName = x.ContactName
+                  };
+                  _mongoContext.UserContacts().InsertOne(userProjection);
+              });
         }
     }
 }

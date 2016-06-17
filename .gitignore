@@ -17,3 +17,9 @@
 /AkkaPlayground/AkkaNET.Sharding.Lighthouse/obj
 /AkkaPlayground/AkkaPlayground.Projections/obj
 /AkkaPlayground/AkkaPlayground.Projections/bin
+/AkkaPlayground/packages
+/AkkaPlayground/Akka.Logger.NLog-dev
+/AkkaPlayground/akka.net-dev
+/AkkaPlayground/Akka.Persistence.SqlServer-dev
+/AkkaPlayground/.nuget
+/AkkaPlayground/TestResults

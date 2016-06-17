@@ -28,6 +28,15 @@
         });
     }
 
+    function getUserContacts(currentUserId) {
+        var url = 'api/user/GetUserContacts?userId=' + currentUserId;
+        var data = {
+            userId: currentUserId,
+        };
+        return $http({
+            method: 'GET', url: url
+        });
+    }
 
     function addToContactList(userId, targetUserId) {
         var url = 'api/user/AddToContactList';
@@ -44,6 +53,7 @@
         login: login,
         register: register,
         search: search,
-        addToContactList: addToContactList
+        addToContactList: addToContactList,
+        getUserContacts: getUserContacts
     };
 });

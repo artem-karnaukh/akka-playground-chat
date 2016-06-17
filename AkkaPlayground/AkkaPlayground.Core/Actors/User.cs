@@ -30,9 +30,8 @@ namespace AkkaPlayground.Core.Actors
             Context.Become(Unregistered);
             RecoverAny(UpdateState);
 
-            _userView = Context.ActorOf(Props.Create(() => new UserView(PersistenceId)), "users-projection-" + PersistenceId);
-            _userContactsView = Context.ActorOf(Props.Create(() => new UserContactsView(PersistenceId)),
-                "user-contact-list-projection-" + PersistenceId);
+            _userView = Context.ActorOf(Props.Create(() => new UserView()));
+            _userContactsView = Context.ActorOf(Props.Create(() => new UserContactsView()));
 
             ClusterSharding clusterSharding = ClusterSharding.Get(Context.System);
             _region = clusterSharding.ShardRegion(typeof(User).Name);
@@ -132,32 +131,35 @@ namespace AkkaPlayground.Core.Actors
         protected void UpdateState(object e)
         {
             e.Match()
-            .With<UserRegisteredEvent>(x =>
+            .With<UserRegisteredEvent>(@event =>
             {
-                State = new UserEntity(x.Id, x.Login, x.Login, x.Email);
+                State = new UserEntity(@event.Id, @event.Login, @event.Login, @event.Email);
                 if (!IsRecovering)
                 {
-                    Context.System.EventStream.Publish(x);
+                    Context.System.EventStream.Publish(@event);
+                    ResendToViews(@event);
                 }
                 Context.Become(Initialized);
+                
             })
-            .With<UserNameEmailChangedEvent>(x =>
+            .With<UserNameEmailChangedEvent>(@event =>
             {
-                State.Name = x.Name;
-                State.Email = x.Email;
+                State.Name = @event.Name;
+                State.Email = @event.Email;
                 if (!IsRecovering)
                 {
-                    Context.System.EventStream.Publish(x);
+                    Context.System.EventStream.Publish(@event);
+                    ResendToViews(@event);
                 }
             })
-            .With<SubscribedToUserEvent>(x =>
+            .With<SubscribedToUserEvent>(@event =>
             {
-                State.SubscribedToList.Add(x.ContactUserId);
-                _userView.Tell(new Update(isAwait: true));
-
+                State.SubscribedToList.Add(@event.ContactUserId);
+                
                 if (!IsRecovering)
                 {
-                    Context.System.EventStream.Publish(x);
+                    Context.System.EventStream.Publish(@event);
+                    ResendToViews(@event);
                 }
             });
             //.With<UserAddedToFollowersEvent>(x =>
@@ -170,7 +172,12 @@ namespace AkkaPlayground.Core.Actors
             //    State.Chats.Add(new UserChatEntity() { ChatId = x.ChatId, Participants = x.Participants });
             //});
         }
-        
+     
+        private void ResendToViews(object @event)
+        {
+            _userContactsView.Tell(@event);
+            _userView.Tell(@event);
+        }
     }
 }
 

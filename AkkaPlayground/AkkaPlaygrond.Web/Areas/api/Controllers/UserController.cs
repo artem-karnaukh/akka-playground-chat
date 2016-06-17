@@ -52,7 +52,6 @@ namespace AkkaPlaygrond.Web.Areas.api.Controllers
             return Json(true);
         }
 
-
         [HttpPost]
         public JsonResult Search(Guid currentUserId, string searchString)
         {
@@ -80,6 +79,24 @@ namespace AkkaPlaygrond.Web.Areas.api.Controllers
                     IsCurrentUser = item.Id == currentUserId
                 }
             ).ToList();
+
+            return Json(result, JsonRequestBehavior.AllowGet);
+        }
+
+        [HttpGet]
+        public JsonResult GetUserContacts(Guid userId)
+        {
+            List<UserContactsProjection> userContacts =
+                (from c in _mongoContext.UserContacts().AsQueryable()
+                 where c.UserId == userId
+                 select c).ToList();
+
+            List<UserContactModel> result = userContacts.Select(item =>
+                new UserContactModel()
+                {
+                    Id = item.ContactUserId,
+                    Name = item.ContactName
+                }).ToList();
 
             return Json(result, JsonRequestBehavior.AllowGet);
         }

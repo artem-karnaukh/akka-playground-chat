@@ -1,5 +1,5 @@
 ﻿using Akka.Actor;
-using Akka.Persistence.SqlServer;
+//using Akka.Persistence.SqlServer;
 using Akka.Routing;
 using AkkaPlaygrond.Web.Actors;
 using AkkaPlayground.Core.Actors;
@@ -30,7 +30,7 @@ namespace AkkaPlaygrond.Web
             BundleConfig.RegisterBundles(BundleTable.Bundles);
 
             ActorSystem = ActorSystem.Create("AkkaCluster");
-            SqlServerPersistence.Get(ActorSystem);
+            //SqlServerPersistence.Get(ActorSystem);
 
             SystemActors.SignalRActor =
                 ActorSystem.ActorOf(Props.Create(() => new SignalRActor()), "signalr");

@@ -1,9 +1,8 @@
 ﻿<ion-view view-title="Contact List">
     <ion-content class="padding">
-        <ion-refresher pulling-text="Pull to refresh..."
+        <ion-refresher pulling-text="pull to refresh..."
                        on-refresh="doRefresh()">
         </ion-refresher>
-
         <ion-list>
             <ion-item class="item-button-right" ng-repeat="user in users" ng-click="openChat(user)">
                 {{user.Name}}

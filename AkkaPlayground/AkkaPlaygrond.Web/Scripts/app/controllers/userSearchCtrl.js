@@ -20,8 +20,6 @@
             $ionicPopup.alert({
                 title: 'Success',
                 template: 'User ' + contactUserName + ' was registered.'
-            }).then(function (res) {
-                clearRegisterModel();
             });
         });
     })

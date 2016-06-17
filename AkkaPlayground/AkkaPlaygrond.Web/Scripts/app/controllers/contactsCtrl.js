@@ -1,5 +1,5 @@
 ﻿angular.module('Chat')
-.controller("ContactsCtrl", function ($scope, $http, $state, UserContext, UserHub) {
+.controller("ContactsCtrl", function ($scope, $state, UserContext, UserService) {
 
     $scope.users = [];
 
@@ -12,21 +12,18 @@
         if (!loggedInUser) {
             return;
         }
-
-        UserHub.getUsersContacts(loggedInUser.Id).done(function (data) {
-            $scope.$apply(function () {
-                $scope.users = data;
-                $scope.$broadcast('scroll.refreshComplete');
-            })
+        UserService.getUserContacts(loggedInUser.Id).then(function (response) {
+            $scope.users = response.data;
+        }).finally(function() {
+            $scope.$broadcast('scroll.refreshComplete');
         });
     }
 
     $scope.openChat = function (user) {
         $state.go('tab.user-chat-details', { userId: user.Id });
     }
+    
 
-    UserHub.initialized.then(function () {
-        getUsersContacts();
-    });
+    getUsersContacts();
 
 });

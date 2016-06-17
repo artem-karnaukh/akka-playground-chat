@@ -42,9 +42,6 @@
         return self.userHub.server.addChatMessage(userId, chatId, text);
     }
 
-    function getUsersContacts(userId) {
-        return self.userHub.server.getUsersContacts(userId);
-    }
 
     function getUserChats(userId) {
         return self.userHub.server.getUserChats(userId);
@@ -66,7 +63,6 @@
         getUserChat: getUserChat,
         createChat: createChat,
         addChatMessage: addChatMessage,
-        getUsersContacts: getUsersContacts,
         getUserChats: getUserChats,
         joinSignalRGroup: joinSignalRGroup,
         joinSignalRChatGroups: joinSignalRChatGroups
