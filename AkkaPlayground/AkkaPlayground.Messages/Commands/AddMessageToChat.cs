@@ -1,5 +1,4 @@
-﻿using Akka.Routing;
-using System;
+﻿using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
@@ -7,7 +6,7 @@ using System.Threading.Tasks;
 
 namespace AkkaPlayground.Messages.Commands
 {
-    public class AddMessageToChat : IConsistentHashable
+    public class AddMessageToChat 
     {
         public Guid ChatId { get; protected set; }
 
@@ -20,11 +19,6 @@ namespace AkkaPlayground.Messages.Commands
             ChatId = chatId;
             Author = author;
             Message = message;
-        }
-
-        public object ConsistentHashKey
-        {
-            get { return ChatId; }
         }
     }
 }

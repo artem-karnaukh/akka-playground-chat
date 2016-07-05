@@ -1,10 +1,8 @@
 ﻿angular.module('Chat')
-.controller("ChatCtrl", function ($rootScope, $scope, $stateParams, $q, UserContext, UserHub) {
+.controller("ChatCtrl", function ($rootScope, $scope, $stateParams, $q, UserContext, UserHub, ChatService) {
     var chatId = $stateParams.chatId;
+    var targetUserId = $stateParams.userId;
 
-
-
-    //var targetUserId = $stateParams.userId;
     //$scope.messageModel = { text: '' };
     //$scope.messages = [];
 
@@ -38,6 +36,11 @@
     //        $scope.$digest();
     //    })
     //});
+    var loggedInUser = UserContext.getUser();
+
+    ChatService.create(loggedInUser.Id, targetUserId).success(function (result) {
+        chatId = result;
+    });
 
     //UserHub.initialized.then(function() {
     //    if (!$scope.currentUserId) {

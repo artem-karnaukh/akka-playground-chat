@@ -7,8 +7,21 @@
 
     <!-- your app's js -->
     @Scripts.Render("~/bundles/lib")
+    <script src="https://www.gstatic.com/firebasejs/3.0.3/firebase.js"></script>
+    <script src="https://cdn.firebase.com/libs/angularfire/2.0.0/angularfire.min.js"></script>
     @Scripts.Render("~/bundles/app")
     @Styles.Render("~/Content/css")
+
+
+    <script>
+        var config = {
+            apiKey: "AIzaSyCYLwSBEiXWsmPytQ1cHxVg39mXFmfplOs",
+            authDomain: "akkaplayground.firebaseapp.com",
+            databaseURL: "https://akkaplayground.firebaseio.com",
+            storageBucket: "akkaplayground.appspot.com",
+        };
+        firebase.initializeApp(config);
+    </script>
 
     <script src="/AkkaPlaygrond.Web/signalr/js"></script>
 

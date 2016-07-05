@@ -19,15 +19,17 @@ namespace AkkaPlaygrond.Web.Actors
     {
         public IStash Stash { get;set; }
 
-        private IActorRef Region { get; set; }
+        private IActorRef UserRegion { get; set; }
+
+        private IActorRef ChatRegion { get; set; }
 
         private Cluster Cluster { get; set; }
 
-        private SignalREventPusher _signalrPusher { get; set; }
+        private SignalREventPusher SignalrPusher { get; set; }
 
         public SignalRActor()
         {
-            _signalrPusher = new SignalREventPusher();
+            SignalrPusher = new SignalREventPusher();
 
             Cluster = Akka.Cluster.Cluster.Get(Context.System);
             Cluster.Subscribe(Self, ClusterEvent.InitialStateAsEvents, new[] { typeof(ClusterEvent.IMemberEvent),
@@ -42,9 +44,16 @@ namespace AkkaPlaygrond.Web.Actors
                 if (x is MemberUp)
                 {
                     Become(Ready);
-                    Region = ClusterSharding.Get(Context.System).Start(
+                    UserRegion = ClusterSharding.Get(Context.System).Start(
                         typeName: typeof(User).Name,
                         entityProps: Props.Create<User>(),
+                        settings: ClusterShardingSettings.Create(Context.System),
+                        messageExtractor: new MessageExtractor(10)
+                        );
+
+                    ChatRegion = ClusterSharding.Get(Context.System).Start(
+                        typeName: typeof(Chat).Name,
+                        entityProps: Props.Create<Chat>(),
                         settings: ClusterShardingSettings.Create(Context.System),
                         messageExtractor: new MessageExtractor(10)
                         );
@@ -68,23 +77,31 @@ namespace AkkaPlaygrond.Web.Actors
             {
                 var command = new RegisterUserCommand(register.UserId, register.UserName, register.Email);
                 var envelope = new ShardEnvelope(command.Id.ToString(), command);
-                Region.Tell(envelope);
+                UserRegion.Tell(envelope);
             });
+
+            Receive<CreateChatModel>(x =>
+            {
+                var command = new CreateChatCommand(x.ChatId, new List<Guid> { x.UserId, x.TargetUserId });
+                var envelope = new ShardEnvelope(command.Id.ToString(), command);
+                ChatRegion.Tell(envelope);
+            });
+            
 
             Receive<UserRegisteredEvent>(evt =>
             {
-                _signalrPusher.PlayerJoined(evt.Id, evt.Login, evt.Email);
+                SignalrPusher.PlayerJoined(evt.Id, evt.Login, evt.Email);
             });
 
             Receive<SubscribeToUserCommand>(mes =>
             {
                 var envelope = new ShardEnvelope(mes.UserId.ToString(), mes);
-                Region.Tell(envelope);
+                UserRegion.Tell(envelope);
             });
 
             Receive<SubscribedToUserEvent>(mes =>
             {
-                _signalrPusher.UserAddedToContactList(mes.UserId, mes.ContactUserId, mes.ContactName);
+                SignalrPusher.UserAddedToContactList(mes.UserId, mes.ContactUserId, mes.ContactName);
             });
 
 

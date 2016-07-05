@@ -1,10 +1,12 @@
-﻿angular.module('Chat', ['ionic', 'SignalR'])
+﻿angular.module('Chat', ['ionic', 'SignalR', 'firebase'])
 .run(function ($ionicPlatform, $rootScope, UserContext, $state, UserHub) {
     $ionicPlatform.ready(function () {
         if (window.StatusBar) {
             StatusBar.styleLightContent();
         }
     });
+
+
 
     var appStarted = false;
 
@@ -19,10 +21,9 @@
             event.preventDefault();
             appStarted = true;
             if (user) {
-                $state.go('tab.chats');
+                $state.go('tab.contacts');
                 UserHub.initialized.then(function () {
                     UserHub.joinSignalRGroup(user.Id);
-                    UserHub.joinSignalRChatGroups(user.Id);
                 });
             } else {
                 $state.go('login');

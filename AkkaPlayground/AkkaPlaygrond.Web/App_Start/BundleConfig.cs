@@ -13,6 +13,7 @@ namespace AkkaPlaygrond.Web
                         "~/Scripts/lib/jquery.signalR-2.2.0.js",
                         "~/Scripts/lib/moment.js",
                         "~/Scripts/lib/signalr-hub.js"
+
                 ));
 
             bundles.Add(new ScriptBundle("~/bundles/app")
@@ -25,7 +26,8 @@ namespace AkkaPlaygrond.Web
                         "~/Scripts/app/controllers/chatCtrl.js",
                         "~/Scripts/app/controllers/chatsListCtrl.js",
                         "~/Scripts/app/utils/userHub.js",
-                        "~/Scripts/app/services/userSvc.js"
+                        "~/Scripts/app/services/userSvc.js",
+                        "~/Scripts/app/services/chatSvc.js"
                         ));
 
             bundles.Add(new StyleBundle("~/Content/css")

@@ -7,7 +7,7 @@ using System.Threading.Tasks;
 
 namespace AkkaPlayground.Messages.Commands
 {
-    public class CreateChatCommand : IConsistentHashable
+    public class CreateChatCommand 
     {
         public Guid Id { get; private set; }
 
@@ -17,11 +17,6 @@ namespace AkkaPlayground.Messages.Commands
         {
             Id = id;
             Participants = participants;
-        }
-
-        public object ConsistentHashKey
-        {
-            get { return Id; }
         }
     }
 }
