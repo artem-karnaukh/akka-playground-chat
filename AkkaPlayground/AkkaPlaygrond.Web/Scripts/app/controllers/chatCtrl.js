@@ -1,68 +1,75 @@
 ﻿angular.module('Chat')
-.controller("ChatCtrl", function ($rootScope, $scope, $stateParams, $q, UserContext, UserHub, ChatService) {
+.controller("ChatCtrl", function ($rootScope, $scope, $stateParams, $q, rootRef, $firebaseArray, UserContext, $ionicLoading, UserService, ChatService, MessageFactory) {
     var chatId = $stateParams.chatId;
     var targetUserId = $stateParams.userId;
 
-    //$scope.messageModel = { text: '' };
-    //$scope.messages = [];
-
-    //$scope.sendMessage = function () {
-    //    var loggedInUser = UserContext.getUser();
-    //    if (!loggedInUser || !chatId || !$scope.messageModel.text) {
-    //        return;
-    //    }
-    //    UserHub.addChatMessage(loggedInUser.Id, chatId, $scope.messageModel.text);
-    //    $scope.messageModel.text = '';
-    //};
-
-    //var loggedInUser = UserContext.getUser();
-    //$scope.currentUserId = loggedInUser.Id;
-
-    //var ready = $q.defer();
-
-    //ready.promise.then(function () {
-    //    $rootScope.$on('chatMessageAdded', function (e, message) {
-    //        if (chatId != message.ChatId) {
-    //            return;
-    //        }
-
-    //        $scope.$apply(function () {
-    //            $scope.messages.push(message);
-    //        });
-    //    });
-
-    //    UserHub.getChatLog(chatId).then(function (response) {
-    //        $scope.messages = $scope.messages.concat(response.Log);
-    //        $scope.$digest();
-    //    })
-    //});
     var loggedInUser = UserContext.getUser();
 
-    ChatService.create(loggedInUser.Id, targetUserId).success(function (result) {
-        chatId = result;
+    $scope.currentUserId = loggedInUser.Id;
+
+    $scope.messages = undefined;
+
+    $scope.messageModel = { text: '' };
+    
+
+    $scope.sendMessage = function () {
+        var loggedInUser = UserContext.getUser();
+        if (!loggedInUser || !chatId || !$scope.messageModel.text) {
+            return;
+        }
+        ChatService.addMessage(chatId, loggedInUser.Id, $scope.messageModel.text);
+        $scope.messageModel.text = '';
+    };
+    
+    function init() {
+        $ionicLoading.show({ template: 'Loading...' })
+        if (targetUserId) {
+            ChatService.getByUser(loggedInUser.Id, targetUserId).success(function (result) {
+                if (!result) {
+                    ChatService.create(loggedInUser.Id, targetUserId).success(function (result) {
+                        chatId = result;
+                        initChat(chatId);
+                    });
+                } else {
+                    chatId = result.ChatId;
+                    initChat(chatId); initChat
+                }
+            });
+        } else if (chatId) {
+            initChat(chatId);
+        }
+    }
+
+    var loading = false;
+
+    function onChatLoaded(e) {
+        loading = false;
+        $ionicLoading.hide();
+    };
+
+    function onChatAdded(e) {
+        if (!loading) {
+            UserService.markChatMessagesRead(loggedInUser.Id, chatId);
+        }
+    }
+
+    var onChatAddedOff;
+
+    function initChat(chatId) {
+        loading = true;
+        var ref = rootRef.child('chats').child(chatId).child('messages');
+
+        $scope.messages = new MessageFactory(ref);
+        $scope.messages.$loaded(onChatLoaded)
+        onChatAddedOff = $scope.messages.$watch(onChatAdded);
+
+
+        UserService.markChatMessagesRead(loggedInUser.Id, chatId);
+    }
+    $scope.$on('$destroy', function () {
+        onChatAddedOff();
     });
 
-    //UserHub.initialized.then(function() {
-    //    if (!$scope.currentUserId) {
-    //        ready.resolve();
-    //        return;
-    //    }
-    //    if (!chatId) {
-    //        UserHub.getUserChat(loggedInUser.Id, targetUserId).done(function (result) {
-    //            chatId = result;
 
-    //            if (!result) {
-    //                UserHub.createChat(loggedInUser.Id, targetUserId).done(function (result) {
-    //                    chatId = result;
-    //                    ready.resolve()
-    //                });
-    //            } else {
-    //                ready.resolve()
-    //            }
-    //        });
-    //    } else {
-    //        ready.resolve();
-    //    }
-    //})
-
+    init();
 });

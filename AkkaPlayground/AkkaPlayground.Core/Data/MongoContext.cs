@@ -14,8 +14,10 @@ namespace AkkaPlayground.Core.Data
     {
         private readonly IMongoDatabase _database;
 
-        public IMongoCollection<UserProjection> Users() => _database.GetCollection<UserProjection>("user");
-        public IMongoCollection<UserContactsProjection> UserContacts() => _database.GetCollection<UserContactsProjection>("userContacts");
+        public IMongoCollection<UserDto> Users() => _database.GetCollection<UserDto>("user");
+        public IMongoCollection<UserContactsDto> UserContacts() => _database.GetCollection<UserContactsDto>("userContacts");
+
+        public IMongoCollection<UserBadgeEntryDto> UserBadgeEntries() => _database.GetCollection<UserBadgeEntryDto>("userBadges");
 
         public MongoContext()
         {

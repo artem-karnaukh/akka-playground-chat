@@ -17,9 +17,9 @@ namespace AkkaPlaygrond.Web.Models
             _userHubContext = GlobalHost.ConnectionManager.GetHubContext<UserHub>();
         }
         
-        public void PlayerJoined(Guid id, string userName, string email)
+        public void PlayerJoined(Guid id, string login, string userName)
         {
-            _userHubContext.Clients.All.userJoined(id, userName, email);
+            _userHubContext.Clients.All.userJoined(id, login, userName);
         }
 
         public void UserAddedToContactList(Guid userId, Guid contactId, string contactUserName)

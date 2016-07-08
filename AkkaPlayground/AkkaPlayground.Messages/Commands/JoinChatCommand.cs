@@ -8,13 +8,14 @@ namespace AkkaPlayground.Messages.Commands
 {
     public class JoinChatCommand
     {
-        public Guid ChatId { get; protected set; }
+        public Guid ChatId { get; private set; }
 
-        public Guid UserId { get; protected set; }
+        public Guid UserId { get; private set; }
 
         public JoinChatCommand(Guid chatId, Guid userId)
         {
             ChatId = chatId;
+            
             UserId = userId;
         }
     }

@@ -18,10 +18,12 @@ namespace AkkaPlayground.Core.Actors
 {
     public class User : ReceivePersistentActor
     {
-        private UserEntity State = null;
-        private IActorRef _userView;
-        private IActorRef _userContactsView;
-        private IActorRef _region;
+        UserEntity State = null;
+        IActorRef _userView;
+        IActorRef _userContactsView;
+        IActorRef _userChatView;
+        IActorRef _userBadgeView;
+        IActorRef _region;
 
         public override string PersistenceId { get { return Self.Path.Name; } }
 
@@ -30,8 +32,12 @@ namespace AkkaPlayground.Core.Actors
             Context.Become(Unregistered);
             RecoverAny(UpdateState);
 
+            Guid userId = Guid.Parse(Self.Path.Name);
+
             _userView = Context.ActorOf(Props.Create(() => new UserView()));
             _userContactsView = Context.ActorOf(Props.Create(() => new UserContactsView()));
+            _userChatView = Context.ActorOf(Props.Create(() => new UserChatView(userId)));
+            _userBadgeView = Context.ActorOf(Props.Create(() => new UserBadgeView(userId)));
 
             ClusterSharding clusterSharding = ClusterSharding.Get(Context.System);
             _region = clusterSharding.ShardRegion(typeof(User).Name);
@@ -45,19 +51,17 @@ namespace AkkaPlayground.Core.Actors
             }
         }
 
-
-        protected void Unregistered(object message)
+        void Unregistered(object message)
         {
             message.Match()
                 .With<RegisterUserCommand>(register =>
                 {
-                    var userRegistered = new UserRegisteredEvent(register.Id, register.Login, register.Email);
+                    var userRegistered = new UserRegisteredEvent(register.Id, register.Login, register.UserName);
                     Persist(userRegistered, UpdateState);
                 });
         }
 
-
-        protected void Initialized(object message)
+        void Initialized(object message)
         {
             message.Match()
                 .With<ChangeUserNameEmailCommand>(cmd =>
@@ -73,67 +77,35 @@ namespace AkkaPlayground.Core.Actors
                             new GetUserById(cmd.ContactUserId));
                         GetUserByIdResult contactUser = _region.Ask<GetUserByIdResult>(envelop).Result;
 
-                        var @event = new SubscribedToUserEvent(cmd.UserId, cmd.ContactUserId, contactUser.Login, contactUser.Name);
+                        var @event = new SubscribedToUserEvent(cmd.UserId, cmd.ContactUserId, contactUser.Login, contactUser.UserName);
                         Persist(@event, UpdateState);
                     }
                 })
                 .With<GetUserById>(x =>
                 {
-                    Sender.Tell(new GetUserByIdResult(State.Login, State.Name));
+                    Sender.Tell(new GetUserByIdResult(State.Id, State.Login, State.UserName));
+                })
+                .With<ChatCreatedEvent>(x =>
+                {
+                    ResendToViews(x);
+                })
+                .With<ChatMessageAddedEvent>(x =>
+                {
+                    ResendToViews(x);
+                })
+                .With<MarkChatMessagesReadCommand>(x =>
+                {
+                    var @event = new ChatMessagesMarkedReadEvent(x.UserId, x.ChatId);
+                    Persist(@event, UpdateState);
                 });
-                //.With<SubscribedToUserEvent>(cmd =>
-                //{
-                //    if (!State.FollowersList.Any(x => x == cmd.ContactUserId))
-                //    {
-                //        var @event = new UserAddedToFollowersEvent(cmd.ContactUserId, cmd.UserId);
-                //        Persist<UserAddedToFollowersEvent>(@event, UpdateState);
-                //    }
-                //});
-                //.With<GetUserSubscribedToList>(mes =>
-                //{
-                //    Sender.Tell(null);
-                //    //userView.Ask<SubscribedToListResult>(mes).PipeTo(Sender);
-                //})
-                //.With<ChatMessageAddedEvent>(mes =>
-                //{
-                //    if (mes.Author != State.Id)
-                //    {
-                //    }
-                //    Persist<UserChatMessageAddedEvent>(new UserChatMessageAddedEvent(mes.ChatId, mes.Author, mes.Message, mes.Date), UpdateState);
-                //    //userView.Tell(new Update());
-                //})
-                //.With<ChatCreatedEvent>(mes =>
-                //{
-                //    if (mes.Participants.Contains(State.Id))
-                //    {
-                //        var @event = new UserAddedToChatEvent(mes.Id, mes.Participants);
-                //        Persist<UserAddedToChatEvent>(@event, UpdateState);
-                //    }
-                //})
-                //.With<GetPrivateChatWithUser>(mes =>
-                //{
-                //    UserChatEntity userPrivateChat = State.Chats.FirstOrDefault(x => x.Participants.Count == 2 && x.Participants.Any(y => y == mes.TargetUserId));
-                //    if (userPrivateChat != null)
-                //    {
-                //        Sender.Tell(new UserPrivateChatReult(userPrivateChat.ChatId));
-                //    }
-                //    else
-                //    {
-                //        Sender.Tell(new UserPrivateChatReult(null));
-                //    }
-                //})
-                //.With<GetUserChats>(mes =>
-                //{
-                //    //userView.Ask<UserChatsResult>(mes).PipeTo(Sender);
-                //});
         }
 
-        protected void UpdateState(object e)
+        void UpdateState(object e)
         {
             e.Match()
             .With<UserRegisteredEvent>(@event =>
             {
-                State = new UserEntity(@event.Id, @event.Login, @event.Login, @event.Email);
+                State = new UserEntity(@event.Id, @event.Login, @event.UserName);
                 if (!IsRecovering)
                 {
                     Context.System.EventStream.Publish(@event);
@@ -144,8 +116,7 @@ namespace AkkaPlayground.Core.Actors
             })
             .With<UserNameEmailChangedEvent>(@event =>
             {
-                State.Name = @event.Name;
-                State.Email = @event.Email;
+                State.UserName = @event.Name;
                 if (!IsRecovering)
                 {
                     Context.System.EventStream.Publish(@event);
@@ -161,22 +132,22 @@ namespace AkkaPlayground.Core.Actors
                     Context.System.EventStream.Publish(@event);
                     ResendToViews(@event);
                 }
+            })
+            .With<ChatMessagesMarkedReadEvent>(@event =>
+            {
+                if (!IsRecovering)
+                {
+                    ResendToViews(@event);
+                }
             });
-            //.With<UserAddedToFollowersEvent>(x =>
-            //{
-            //    State.FollowersList.Add(x.TargetUserId);
-            //    //userView.Tell(new Update(isAwait: true));
-            //})
-            //.With<UserAddedToChatEvent>(x =>
-            //{
-            //    State.Chats.Add(new UserChatEntity() { ChatId = x.ChatId, Participants = x.Participants });
-            //});
         }
      
-        private void ResendToViews(object @event)
+        void ResendToViews(object @event)
         {
+            _userChatView.Tell(@event);
             _userContactsView.Tell(@event);
             _userView.Tell(@event);
+            _userBadgeView.Tell(@event);
         }
     }
 }

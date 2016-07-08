@@ -35,7 +35,7 @@ namespace AkkaPlaygrond.Web.Areas.api.Controllers
         [AllowAnonymous]
         public JsonResult Login(string login)
         {
-            var user = _mongoContext.Users().AsQueryable<UserProjection>().FirstOrDefault(x => x.Login == login);
+            var user = _mongoContext.Users().AsQueryable<UserDto>().FirstOrDefault(x => x.Login == login);
             if (user == null)
             {
                 throw new ArgumentNullException();
@@ -53,13 +53,22 @@ namespace AkkaPlaygrond.Web.Areas.api.Controllers
         }
 
         [HttpPost]
+        public JsonResult MarkChatMessagesRead(Guid userId, Guid chatId)
+        {
+            MarkChatMessagesReadCommand command = new MarkChatMessagesReadCommand(userId, chatId);
+            SystemActors.SignalRActor.Tell(command);
+
+            return Json(true);
+        }
+
+
+        [HttpPost]
         public JsonResult Search(Guid currentUserId, string searchString)
         {
-            List<UserProjection> userProjections =
+            List<UserDto> userProjections =
                 (from x in _mongoContext.Users().AsQueryable()
                  where x.Login.Contains(searchString) ||
-                    (x.Name != null && x.Name.Contains(searchString)) ||
-                    (x.Email != null && x.Email.Contains(searchString))
+                    (x.UserName != null && x.UserName.Contains(searchString))
                  select x).Take(20).ToList();
 
             IEnumerable<Guid> foundUserIds = userProjections.Select(x => x.Id).ToList();
@@ -73,8 +82,7 @@ namespace AkkaPlaygrond.Web.Areas.api.Controllers
                 {
                     Id = item.Id,
                     Login = item.Login,
-                    Name = item.Name,
-                    Email = item.Email,
+                    UserName = item.UserName,
                     IsAlreadyAdded = usersAlreadyInContacts.Any(x => x.ContactUserId == item.Id),
                     IsCurrentUser = item.Id == currentUserId
                 }
@@ -86,7 +94,7 @@ namespace AkkaPlaygrond.Web.Areas.api.Controllers
         [HttpGet]
         public JsonResult GetUserContacts(Guid userId)
         {
-            List<UserContactsProjection> userContacts =
+            List<UserContactsDto> userContacts =
                 (from c in _mongoContext.UserContacts().AsQueryable()
                  where c.UserId == userId
                  select c).ToList();
@@ -95,7 +103,8 @@ namespace AkkaPlaygrond.Web.Areas.api.Controllers
                 new UserContactModel()
                 {
                     Id = item.ContactUserId,
-                    Name = item.ContactName
+                    Login = item.ContactLogin,
+                    UserName = item.ContactUserName
                 }).ToList();
 
             return Json(result, JsonRequestBehavior.AllowGet);

@@ -11,6 +11,7 @@
     };
 
     function register(data) {
+        debugger
         var url = 'api/user/register';
         return $http({
             method: 'POST', url: url, data: JSON.stringify(data)
@@ -49,11 +50,23 @@
         });
     }
 
+    function markChatMessagesRead(userId, chatId) {
+        var url = 'api/user/MarkChatMessagesRead';
+        var data = {
+            userId: userId,
+            chatId: chatId
+        };
+        return $http({
+            method: 'POST', url: url, data: JSON.stringify(data)
+        });
+    }
+
     return {
         login: login,
         register: register,
         search: search,
         addToContactList: addToContactList,
-        getUserContacts: getUserContacts
+        getUserContacts: getUserContacts,
+        markChatMessagesRead: markChatMessagesRead
     };
 });

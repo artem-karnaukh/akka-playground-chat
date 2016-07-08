@@ -3,28 +3,15 @@
         <ion-list>
             <ion-item ng-repeat="chat in chats"
                       class="item-chat item-remove-animate item-avatar item-icon-right"
-                      type="item-text-wrap">
-                <img ng-src="~/Images/user-default.svg">
-                <h2>{{chat.ChatName}}</h2>
-                <p>{{chat.LastMessage}}</p>
-                <span class="last-message-timestamp">{{chat.LastMessageDate}}</span>
-                <i class="icon ion-chevron-right icon-accessory"></i>
-            </ion-item>
-
-            @*<ion-item ng-repeat="chat in chats | orderBy:'-lastMessage.timestamp'"
-                      class="item-chat item-remove-animate item-avatar item-icon-right"
                       type="item-text-wrap"
                       ng-click="openChat(chat)">
                 <img ng-src="~/Images/user-default.svg">
-                <h2>{{chat.TargetUserName}}</h2>
+                <h2>{{chat.Name}}</h2>
                 <p>{{chat.LastMessage}}</p>
                 <span class="last-message-timestamp">{{chat.LastMessageDate}}</span>
+                <span ng-if="chat.UnReadCount > 0" class="badge badge-positive">{{chat.UnReadCount}}</span>
                 <i class="icon ion-chevron-right icon-accessory"></i>
-
-                <ion-option-button class="button-assertive" ng-click="remove(chat)">
-                    Delete
-                </ion-option-button>
-            </ion-item>*@
+            </ion-item>
         </ion-list>
 
     </ion-content>

@@ -8,14 +8,17 @@ namespace AkkaPlayground.Messages.Messages
 {
     public class GetUserByIdResult
     {
+        public Guid Id { get; set; }
+
         public string Login { get; private set; }
 
-        public string Name { get; private set; }
+        public string UserName { get; private set; }
 
-        public GetUserByIdResult(string login, string name)
+        public GetUserByIdResult(Guid id, string login, string name)
         {
+            Id = id;
             Login = login;
-            Name = name;
+            UserName = name;
         }
 
     }

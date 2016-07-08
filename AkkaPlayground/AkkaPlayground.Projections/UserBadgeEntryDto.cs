@@ -6,16 +6,17 @@ using System.Threading.Tasks;
 
 namespace AkkaPlayground.Projections
 {
-    public class UserContactsProjection
+    public class UserBadgeEntryDto
     {
         public Guid Id { get; set; }
 
         public Guid UserId { get; set; }
 
-        public Guid ContactUserId { get; set; }
+        public Guid ChatId { get; set; }
 
-        public string ContactLogin { get; set; }
+        public Guid MessageId { get; set; }
 
-        public string ContactName { get; set; }
+        public DateTime Date { get; set; }
+
     }
 }

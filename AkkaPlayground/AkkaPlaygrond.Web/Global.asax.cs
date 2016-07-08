@@ -38,7 +38,11 @@ namespace AkkaPlaygrond.Web
 
         protected void Application_End()
         {
-            ActorSystem.Shutdown();
+            var cluster = Akka.Cluster.Cluster.Get(ActorSystem);
+            cluster.Down(cluster.SelfAddress);
+
+            ActorSystem.Terminate();
+            ActorSystem.WhenTerminated.Wait();
         }
     }
 }

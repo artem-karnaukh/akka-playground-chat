@@ -12,12 +12,15 @@ namespace AkkaPlaygrond.Web
                         "~/Scripts/lib/jquery-1.8.2.js",
                         "~/Scripts/lib/jquery.signalR-2.2.0.js",
                         "~/Scripts/lib/moment.js",
-                        "~/Scripts/lib/signalr-hub.js"
-
+                        "~/Scripts/lib/signalr-hub.js",
+                        "~/Scripts/firebase.js",
+                        "~/Scripts/angularfire.min.js",
+                        "~/Scripts/moment.min.js"
                 ));
 
             bundles.Add(new ScriptBundle("~/bundles/app")
                 .Include("~/Scripts/app/app.js",
+                        "~/Scripts/app/controllers/mainCtrl.js",
                         "~/Scripts/app/controllers/userSearchCtrl.js",
                         "~/Scripts/app/controllers/contactsCtrl.js",
                         "~/Scripts/app/controllers/loginCtrl.js",
@@ -27,7 +30,12 @@ namespace AkkaPlaygrond.Web
                         "~/Scripts/app/controllers/chatsListCtrl.js",
                         "~/Scripts/app/utils/userHub.js",
                         "~/Scripts/app/services/userSvc.js",
-                        "~/Scripts/app/services/chatSvc.js"
+                        "~/Scripts/app/services/chatSvc.js",
+                        "~/Scripts/app/firebase/rootRef.js",
+                        "~/Scripts/app/firebase/chatFactory.js",
+                        "~/Scripts/app/firebase/messageFactory.js",
+                        "~/Scripts/app/utils/loginStorage.js"
+
                         ));
 
             bundles.Add(new StyleBundle("~/Content/css")

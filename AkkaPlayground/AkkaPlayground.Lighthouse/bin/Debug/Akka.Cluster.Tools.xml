@@ -1,0 +1,504 @@
+<?xml version="1.0"?>
+<doc>
+    <assembly>
+        <name>Akka.Cluster.Tools</name>
+    </assembly>
+    <members>
+        <member name="T:Akka.Cluster.Tools.Client.ClusterClient">
+            <summary>
+            <para>
+            This actor is intended to be used on an external node that is not member
+            of the cluster. It acts like a gateway for sending messages to actors
+            somewhere in the cluster. From the initial contact points it will establish
+            a connection to a <see cref="T:Akka.Cluster.Tools.Client.ClusterReceptionist"/> somewhere in the cluster. It will
+            monitor the connection to the receptionist and establish a new connection if
+            the link goes down. When looking for a new receptionist it uses fresh contact
+            points retrieved from previous establishment, or periodically refreshed
+            contacts, i.e. not necessarily the initial contact points.
+            </para>
+            <para>
+            You can send messages via the `ClusterClient` to any actor in the cluster
+            that is registered in the <see cref="T:Akka.Cluster.Tools.Client.ClusterReceptionist"/>.
+            Messages are wrapped in <see cref="T:Akka.Cluster.Tools.Client.ClusterClient.Send"/>, <see cref="T:Akka.Cluster.Tools.Client.ClusterClient.SendToAll"/>
+            or <see cref="T:Akka.Cluster.Tools.Client.ClusterClient.Publish"/>.
+            </para>
+            <para>
+            1. <see cref="T:Akka.Cluster.Tools.Client.ClusterClient.Send"/> -
+            The message will be delivered to one recipient with a matching path, if any such
+            exists. If several entries match the path the message will be delivered
+            to one random destination. The sender of the message can specify that local
+            affinity is preferred, i.e. the message is sent to an actor in the same local actor
+            system as the used receptionist actor, if any such exists, otherwise random to any other
+            matching entry.
+            </para>
+            <para>
+            2. <see cref="T:Akka.Cluster.Tools.Client.ClusterClient.SendToAll"/> -
+            The message will be delivered to all recipients with a matching path.
+            </para>
+            <para>
+            3. <see cref="T:Akka.Cluster.Tools.Client.ClusterClient.Publish"/> -
+            The message will be delivered to all recipients Actors that have been registered as subscribers to
+            to the named topic.
+            </para>
+            <para>
+            Use the factory method <see cref="M:Akka.Cluster.Tools.Client.ClusterClient.Props(Akka.Cluster.Tools.Client.ClusterClientSettings)"/> to create the <see cref="T:Akka.Actor.Props"/> for the actor.
+            </para>
+            </summary>
+        </member>
+        <member name="M:Akka.Cluster.Tools.Client.ClusterClient.Props(Akka.Cluster.Tools.Client.ClusterClientSettings)">
+            <summary>
+            Factory method for <see cref="T:Akka.Cluster.Tools.Client.ClusterClient"/> <see cref="T:Akka.Actor.Props"/>.
+            </summary>
+        </member>
+        <member name="T:Akka.Cluster.Tools.Client.ClusterClientReceptionist">
+            <summary>
+            Extension that starts <see cref="T:Akka.Cluster.Tools.Client.ClusterReceptionist"/> and accompanying <see cref="T:Akka.Cluster.Tools.PublishSubscribe.DistributedPubSubMediator"/>
+            with settings defined in config section "akka.cluster.client.receptionist".
+            The <see cref="T:Akka.Cluster.Tools.PublishSubscribe.DistributedPubSubMediator"/> is started by the <see cref="T:Akka.Cluster.Tools.PublishSubscribe.DistributedPubSub"/> extension.
+            </summary>
+        </member>
+        <member name="P:Akka.Cluster.Tools.Client.ClusterClientReceptionist.IsTerminated">
+            <summary>
+            Returns true if this member is not tagged with the role configured for the receptionist.
+            </summary>
+        </member>
+        <member name="P:Akka.Cluster.Tools.Client.ClusterClientReceptionist.PubSubMediator">
+            <summary>
+            Register the actors that should be reachable for the clients in this <see cref="T:Akka.Cluster.Tools.PublishSubscribe.DistributedPubSubMediator"/>.
+            </summary>
+        </member>
+        <member name="M:Akka.Cluster.Tools.Client.ClusterClientReceptionist.RegisterService(Akka.Actor.IActorRef)">
+            <summary>
+            Register an actor that should be reachable for the clients. The clients can send messages to this actor with
+            <see cref="T:Akka.Cluster.Tools.PublishSubscribe.Send"/> or <see cref="T:Akka.Cluster.Tools.PublishSubscribe.SendToAll"/> using the path elements 
+            of the <see cref="T:Akka.Actor.IActorRef"/>, e.g. "/user/myservice".
+            </summary>
+        </member>
+        <member name="M:Akka.Cluster.Tools.Client.ClusterClientReceptionist.UnregisterService(Akka.Actor.IActorRef)">
+            <summary>
+            A registered actor will be automatically unregistered when terminated, 
+            but it can also be explicitly unregistered before termination.
+            </summary>
+        </member>
+        <member name="M:Akka.Cluster.Tools.Client.ClusterClientReceptionist.RegisterSubscriber(System.String,Akka.Actor.IActorRef)">
+            <summary>
+            Register an actor that should be reachable for the clients to a named topic.
+            Several actors can be registered to the same topic name, and all will receive
+            published messages.
+            The client can publish messages to this topic with <see cref="T:Akka.Cluster.Tools.PublishSubscribe.Publish"/>.
+            </summary>
+        </member>
+        <member name="M:Akka.Cluster.Tools.Client.ClusterClientReceptionist.UnregisterSubscriber(System.String,Akka.Actor.IActorRef)">
+            <summary>
+            A registered subscriber will be automatically unregistered when terminated, 
+            but it can also be explicitly unregistered before termination.
+            </summary>
+        </member>
+        <member name="F:Akka.Cluster.Tools.Client.ClusterClientSettings.InitialContacts">
+            <summary>
+            Actor paths of the <see cref="T:Akka.Cluster.Tools.Client.ClusterReceptionist"/> actors on the servers (cluster nodes) that the client will try to contact initially.
+            </summary>
+        </member>
+        <member name="F:Akka.Cluster.Tools.Client.ClusterClientSettings.EstablishingGetContactsInterval">
+            <summary>
+            Interval at which the client retries to establish contact with one of ClusterReceptionist on the servers (cluster nodes)
+            </summary>
+        </member>
+        <member name="F:Akka.Cluster.Tools.Client.ClusterClientSettings.RefreshContactsInterval">
+            <summary>
+            Interval at which the client will ask the <see cref="T:Akka.Cluster.Tools.Client.ClusterReceptionist"/> for new contact points to be used for next reconnect.
+            </summary>
+        </member>
+        <member name="F:Akka.Cluster.Tools.Client.ClusterClientSettings.HeartbeatInterval">
+            <summary>
+            How often failure detection heartbeat messages for detection of failed connections should be sent.
+            </summary>
+        </member>
+        <member name="F:Akka.Cluster.Tools.Client.ClusterClientSettings.AcceptableHeartbeatPause">
+            <summary>
+            Number of potentially lost/delayed heartbeats that will be accepted before considering it to be an anomaly. 
+            The ClusterClient is using the <see cref="T:Akka.Remote.DeadlineFailureDetector"/>, which will trigger if there are 
+            no heartbeats within the duration <see cref="F:Akka.Cluster.Tools.Client.ClusterClientSettings.HeartbeatInterval"/> + <see cref="F:Akka.Cluster.Tools.Client.ClusterClientSettings.AcceptableHeartbeatPause"/>.
+            </summary>
+        </member>
+        <member name="F:Akka.Cluster.Tools.Client.ClusterClientSettings.BufferSize">
+            <summary>
+            If connection to the receptionist is not established the client will buffer this number of messages and deliver 
+            them the connection is established. When the buffer is full old messages will be dropped when new messages are sent via the client. 
+            Use 0 to disable buffering, i.e. messages will be dropped immediately if the location of the receptionist is unavailable.
+            </summary>
+        </member>
+        <member name="T:Akka.Cluster.Tools.Client.ClusterReceptionist">
+            <summary>
+            <para>
+            <see cref="T:Akka.Cluster.Tools.Client.ClusterClient"/> connects to this actor to retrieve. The <see cref="T:Akka.Cluster.Tools.Client.ClusterReceptionist"/> is
+            supposed to be started on all nodes, or all nodes with specified role, in the cluster.
+            The receptionist can be started with the <see cref="M:Akka.Cluster.Tools.Client.ClusterClientReceptionist.Get(Akka.Actor.ActorSystem)"/> or as an
+            ordinary actor (use the factory method <see cref="M:Akka.Cluster.Tools.Client.ClusterReceptionist.Props(Akka.Actor.IActorRef,Akka.Cluster.Tools.Client.ClusterReceptionistSettings)"/>).
+            </para>
+            <para>
+            The receptionist forwards messages from the client to the associated <see cref="T:Akka.Cluster.Tools.PublishSubscribe.DistributedPubSubMediator"/>,
+            i.e. the client can send messages to any actor in the cluster that is registered in the
+            <see cref="T:Akka.Cluster.Tools.PublishSubscribe.DistributedPubSubMediator"/>. Messages from the client are wrapped in <see cref="T:Akka.Cluster.Tools.PublishSubscribe.Send"/>, <see cref="T:Akka.Cluster.Tools.PublishSubscribe.SendToAll"/>
+            or <see cref="T:Akka.Cluster.Tools.PublishSubscribe.Publish"/> with the semantics described in distributed publish/subscribe.
+            </para>
+            <para>
+            Response messages from the destination actor are tunneled via the receptionist
+            to avoid inbound connections from other cluster nodes to the client, i.e.
+            the <see cref="P:Akka.Actor.ActorBase.Sender"/>, as seen by the destination actor, is not the client itself.
+            The <see cref="P:Akka.Actor.ActorBase.Sender"/> of the response messages, as seen by the client, is preserved
+            as the original sender, so the client can choose to send subsequent messages
+            directly to the actor in the cluster.
+            </para>
+            </summary>
+        </member>
+        <member name="M:Akka.Cluster.Tools.Client.ClusterReceptionist.Props(Akka.Actor.IActorRef,Akka.Cluster.Tools.Client.ClusterReceptionistSettings)">
+            <summary>
+            Factory method for <see cref="T:Akka.Cluster.Tools.Client.ClusterReceptionist"/> <see cref="T:Akka.Actor.Props"/>.
+            </summary>
+        </member>
+        <member name="T:Akka.Cluster.Tools.Client.ClientResponseTunnel">
+            <summary>
+            Replies are tunneled via this actor, child of the receptionist, to avoid inbound connections from other cluster nodes to the client.
+            </summary>
+        </member>
+        <member name="M:Akka.Cluster.Tools.Client.ClusterReceptionistSettings.Create(Akka.Actor.ActorSystem)">
+            <summary>
+            Create settings from the default configuration "akka.cluster.client.receptionist".
+            </summary>
+        </member>
+        <member name="M:Akka.Cluster.Tools.Client.ClusterReceptionistSettings.Create(Akka.Configuration.Config)">
+            <summary>
+            Create settings from a configuration with the same layout as the default configuration "akka.cluster.client.receptionist".
+            </summary>
+        </member>
+        <member name="F:Akka.Cluster.Tools.Client.ClusterReceptionistSettings.Role">
+            <summary>
+            Start the receptionist on members tagged with this role. All members are used if undefined.
+            </summary>
+        </member>
+        <member name="F:Akka.Cluster.Tools.Client.ClusterReceptionistSettings.NumberOfContacts">
+            <summary>
+            The receptionist will send this number of contact points to the client.
+            </summary>
+        </member>
+        <member name="F:Akka.Cluster.Tools.Client.ClusterReceptionistSettings.ResponseTunnelReceiveTimeout">
+            <summary>
+            The actor that tunnel response messages to the client will be stopped after this time of inactivity.
+            </summary>
+        </member>
+        <member name="T:Akka.Cluster.Tools.PublishSubscribe.IDistributedPubSubMessage">
+            <summary>
+            Marker trait for remote messages with special serializer.
+            </summary>
+        </member>
+        <member name="T:Akka.Cluster.Tools.PublishSubscribe.DistributedPubSub">
+            <summary>
+            Extension that starts a <see cref="T:Akka.Cluster.Tools.PublishSubscribe.DistributedPubSubMediator"/> actor with settings 
+            defined in config section `akka.cluster.pub-sub`.
+            </summary>
+        </member>
+        <member name="P:Akka.Cluster.Tools.PublishSubscribe.DistributedPubSub.IsTerminated">
+            <summary>
+            Returns true if this member is not tagged with the role configured for the mediator.
+            </summary>
+        </member>
+        <member name="P:Akka.Cluster.Tools.PublishSubscribe.DistributedPubSub.Mediator">
+            <summary>
+            The <see cref="T:Akka.Cluster.Tools.PublishSubscribe.DistributedPubSubMediator"/> actor reference.
+            </summary>
+        </member>
+        <member name="T:Akka.Cluster.Tools.PublishSubscribe.DistributedPubSubMediator">
+            <summary>
+            <para>
+            This actor manages a registry of actor references and replicates
+            the entries to peer actors among all cluster nodes or a group of nodes
+            tagged with a specific role.
+            </para>
+            <para>
+            The <see cref="T:Akka.Cluster.Tools.PublishSubscribe.DistributedPubSubMediator"/> is supposed to be started on all nodes,
+            or all nodes with specified role, in the cluster. The mediator can be
+            started with the <see cref="T:Akka.Cluster.Tools.PublishSubscribe.DistributedPubSub"/> extension or as an ordinary actor.
+            </para>
+            <para>
+            Changes are only performed in the own part of the registry and those changes
+            are versioned. Deltas are disseminated in a scalable way to other nodes with
+            a gossip protocol. The registry is eventually consistent, i.e. changes are not
+            immediately visible at other nodes, but typically they will be fully replicated
+            to all other nodes after a few seconds.
+            </para>
+            <para>
+            You can send messages via the mediator on any node to registered actors on
+            any other node. There is three modes of message delivery.
+            </para>
+            <para>
+            1. <see cref="T:Akka.Cluster.Tools.PublishSubscribe.Send"/> -
+            The message will be delivered to one recipient with a matching path, if any such
+            exists in the registry. If several entries match the path the message will be sent
+            via the supplied `routingLogic` (default random) to one destination. The sender of the
+            message can specify that local affinity is preferred, i.e. the message is sent to an actor
+            in the same local actor system as the used mediator actor, if any such exists, otherwise
+            route to any other matching entry. A typical usage of this mode is private chat to one
+            other user in an instant messaging application. It can also be used for distributing
+            tasks to registered workers, like a cluster aware router where the routees dynamically
+            can register themselves.
+            </para>
+            <para>
+            2. <see cref="T:Akka.Cluster.Tools.PublishSubscribe.SendToAll"/> -
+            The message will be delivered to all recipients with a matching path. Actors with
+            the same path, without address information, can be registered on different nodes.
+            On each node there can only be one such actor, since the path is unique within one
+            local actor system. Typical usage of this mode is to broadcast messages to all replicas
+            with the same path, e.g. 3 actors on different nodes that all perform the same actions,
+            for redundancy.
+            </para>
+            <para>
+            3. <see cref="T:Akka.Cluster.Tools.PublishSubscribe.Publish"/> -
+            Actors may be registered to a named topic instead of path. This enables many subscribers
+            on each node. The message will be delivered to all subscribers of the topic. For
+            efficiency the message is sent over the wire only once per node (that has a matching topic),
+            and then delivered to all subscribers of the local topic representation. This is the
+            true pub/sub mode. A typical usage of this mode is a chat room in an instant messaging
+            application.
+            </para>
+            <para>
+            4. <see cref="T:Akka.Cluster.Tools.PublishSubscribe.Publish"/> with sendOneMessageToEachGroup -
+            Actors may be subscribed to a named topic with an optional property `group`.
+            If subscribing with a group name, each message published to a topic with the
+            `sendOneMessageToEachGroup` flag is delivered via the supplied `routingLogic`
+            (default random) to one actor within each subscribing group.
+            If all the subscribed actors have the same group name, then this works just like
+            <see cref="T:Akka.Cluster.Tools.PublishSubscribe.Send"/> and all messages are delivered to one subscribe.
+            If all the subscribed actors have different group names, then this works like normal
+            <see cref="T:Akka.Cluster.Tools.PublishSubscribe.Publish"/> and all messages are broadcast to all subscribers.
+            </para>
+            <para>
+            You register actors to the local mediator with <see cref="T:Akka.Cluster.Tools.PublishSubscribe.Put"/> or
+            <see cref="T:Akka.Cluster.Tools.PublishSubscribe.Subscribe"/>. `Put` is used together with `Send` and
+            `SendToAll` message delivery modes. The `ActorRef` in `Put` must belong to the same
+            local actor system as the mediator. `Subscribe` is used together with `Publish`.
+            Actors are automatically removed from the registry when they are terminated, or you
+            can explicitly remove entries with <see cref="T:Akka.Cluster.Tools.PublishSubscribe.Remove"/> or
+            <see cref="T:Akka.Cluster.Tools.PublishSubscribe.Unsubscribe"/>.
+            </para>
+            <para>
+            Successful `Subscribe` and `Unsubscribe` is acknowledged with
+            <see cref="T:Akka.Cluster.Tools.PublishSubscribe.SubscribeAck"/> and <see cref="T:Akka.Cluster.Tools.PublishSubscribe.UnsubscribeAck"/>
+            replies.
+            </para>
+            </summary>
+        </member>
+        <member name="M:Akka.Cluster.Tools.PublishSubscribe.DistributedPubSubSettings.Create(Akka.Actor.ActorSystem)">
+            <summary>
+            Creates cluster publish/subscribe settings from the default configuration `akka.cluster.pub-sub`.
+            </summary>
+        </member>
+        <member name="M:Akka.Cluster.Tools.PublishSubscribe.DistributedPubSubSettings.Create(Akka.Configuration.Config)">
+            <summary>
+            Creates cluster publish subscribe settings from provided configuration with the same layout as `akka.cluster.pub-sub`.
+            </summary>
+        </member>
+        <member name="F:Akka.Cluster.Tools.PublishSubscribe.DistributedPubSubSettings.Role">
+            <summary>
+            The mediator starts on members tagged with this role. Uses all if undefined.
+            </summary>
+        </member>
+        <member name="F:Akka.Cluster.Tools.PublishSubscribe.DistributedPubSubSettings.RoutingLogic">
+            <summary>
+            The routing logic to use for <see cref="!:DistributedPubSubMediator.Send"/>.
+            </summary>
+        </member>
+        <member name="F:Akka.Cluster.Tools.PublishSubscribe.DistributedPubSubSettings.GossipInterval">
+            <summary>
+            How often the <see cref="T:Akka.Cluster.Tools.PublishSubscribe.DistributedPubSubMediator"/> should send out gossip information
+            </summary>
+        </member>
+        <member name="F:Akka.Cluster.Tools.PublishSubscribe.DistributedPubSubSettings.RemovedTimeToLive">
+            <summary>
+            Removed entries are pruned after this duration.
+            </summary>
+        </member>
+        <member name="F:Akka.Cluster.Tools.PublishSubscribe.DistributedPubSubSettings.MaxDeltaElements">
+            <summary>
+            Maximum number of elements to transfer in one message when synchronizing the registries. 
+            Next chunk will be transferred in next round of gossip.
+            </summary>
+        </member>
+        <member name="M:Akka.Cluster.Tools.PublishSubscribe.DistributedPubSubSettings.#ctor(System.String,Akka.Routing.RoutingLogic,System.TimeSpan,System.TimeSpan,System.Int32)">
+            <summary>
+            Creates a new instance of the <see cref="T:Akka.Cluster.Tools.PublishSubscribe.DistributedPubSubSettings"/>.
+            </summary>
+        </member>
+        <member name="M:Akka.Cluster.Tools.PublishSubscribe.Internal.Utils.WrapIfNeeded(System.Object)">
+            <summary>
+            <para>
+            Mediator uses <see cref="T:Akka.Routing.Router"/> to send messages to multiple destinations, Router in general
+            unwraps messages from <see cref="T:Akka.Routing.RouterEnvelope"/> and sends the contents to <see cref="T:Akka.Routing.Routee"/>s.
+            </para>
+            <para>
+            Using mediator services should not have an undesired effect of unwrapping messages
+            out of <see cref="T:Akka.Routing.RouterEnvelope"/>. For this reason user messages are wrapped in
+            <see cref="T:Akka.Cluster.Tools.PublishSubscribe.Internal.MediatorRouterEnvelope"/> which will be unwrapped by the <see cref="T:Akka.Routing.Router"/> leaving original
+            user message.
+            </para>
+            </summary>
+        </member>
+        <member name="T:Akka.Cluster.Tools.PublishSubscribe.Serialization.DistributedPubSubMessageSerializer">
+            Protobuf serializer of DistributedPubSubMediator messages.
+        </member>
+        <member name="T:Akka.Cluster.Tools.Singleton.ClusterSingletonManagerIsStuck">
+            <summary>
+            Thrown when a consistent state can't be determined within the defined retry limits.
+            Eventually it will reach a stable state and can continue, and that is simplified 
+            by starting over with a clean state. Parent supervisor should typically restart the actor, i.e. default decision.
+            </summary>
+        </member>
+        <member name="T:Akka.Cluster.Tools.Singleton.ClusterSingletonManager">
+            <summary>
+            <para>
+            Manages singleton actor instance among all cluster nodes or a group of nodes tagged with a specific role.
+            At most one singleton instance is running at any point in time.
+            </para>
+            <para>
+            The ClusterSingletonManager is supposed to be started on all nodes, or all nodes with specified role, 
+            in the cluster with <see cref="M:Akka.Actor.ActorSystem.ActorOf(Akka.Actor.Props,System.String)"/>. The actual singleton is started on the oldest node 
+            by creating a child actor from the supplied `singletonProps`.
+            </para>
+            <para>
+            The singleton actor is always running on the oldest member with specified role. The oldest member is determined 
+            by <see cref="M:Akka.Cluster.Member.IsOlderThan(Akka.Cluster.Member)"/>. This can change when removing members. A graceful hand over can normally  
+            be performed when current oldest node is leaving the cluster. Be aware that there is a short time period when 
+            there is no active singleton during the hand-over process.
+            </para>
+            <para>
+            The cluster failure detector will notice when oldest node becomes unreachable due to things like CLR crash, 
+            hard shut down, or network failure. When the crashed node has been removed (via down) from the cluster then 
+            a new oldest node will take over and a new singleton actor is created.For these failure scenarios there 
+            will not be a graceful hand-over, but more than one active singletons is prevented by all reasonable means.
+            Some corner cases are eventually resolved by configurable timeouts.
+            </para>
+            <para>
+            You access the singleton actor with <see cref="T:Akka.Cluster.Tools.Singleton.ClusterSingletonProxy"/>. Alternatively the singleton actor may 
+            broadcast its existence when it is started.
+            </para>
+            <para>
+            Use factory method <see cref="M:Akka.Cluster.Tools.Singleton.ClusterSingletonManager.Props(Akka.Actor.Props,Akka.Cluster.Tools.Singleton.ClusterSingletonManagerSettings)"/> to create the <see cref="T:Akka.Actor.Props"/> for the actor.
+            </para>
+            </summary>
+        </member>
+        <member name="M:Akka.Cluster.Tools.Singleton.ClusterSingletonManager.DefaultConfig">
+            <summary>
+            Returns default HOCON configuration for the cluster singleton.
+            </summary>
+        </member>
+        <member name="M:Akka.Cluster.Tools.Singleton.ClusterSingletonManager.Props(Akka.Actor.Props,Akka.Cluster.Tools.Singleton.ClusterSingletonManagerSettings)">
+            <summary>
+            Creates props for the current cluster singleton manager using <see cref="T:Akka.Actor.PoisonPill"/> 
+            as the default termination message.
+            </summary>
+            <param name="singletonProps"><see cref="T:Akka.Actor.Props"/> of the singleton actor instance.</param>
+            <param name="settings">Cluster singleton manager settings.</param>
+            <returns></returns>
+        </member>
+        <member name="M:Akka.Cluster.Tools.Singleton.ClusterSingletonManager.Props(Akka.Actor.Props,System.Object,Akka.Cluster.Tools.Singleton.ClusterSingletonManagerSettings)">
+            <summary>
+            Creates props for the current cluster singleton manager.
+            </summary>
+            <param name="singletonProps"><see cref="T:Akka.Actor.Props"/> of the singleton actor instance.</param>
+            <param name="terminationMessage">
+            When handing over to a new oldest node this <paramref name="terminationMessage"/> is sent to the singleton actor 
+            to tell it to finish its work, close resources, and stop. The hand-over to the new oldest node 
+            is completed when the singleton actor is terminated. Note that <see cref="T:Akka.Actor.PoisonPill"/> is a 
+            perfectly fine <paramref name="terminationMessage"/> if you only need to stop the actor.
+            </param>
+            <param name="settings">Cluster singleton manager settings.</param>
+        </member>
+        <member name="M:Akka.Cluster.Tools.Singleton.ClusterSingletonManagerSettings.#ctor(System.String,System.String,System.TimeSpan,System.TimeSpan)">
+            <summary>
+            Creates a new instance of the <see cref="T:Akka.Cluster.Tools.Singleton.ClusterSingletonManagerSettings"/>.
+            </summary>
+            <param name="singletonName">The actor name of the child singleton actor.</param>
+            <param name="role">
+            Singleton among the nodes tagged with specified role. If the role is not specified 
+            it's a singleton among all nodes in the cluster.
+            </param>
+            <param name="removalMargin">
+            Margin until the singleton instance that belonged to a downed/removed partition is 
+            created in surviving partition. The purpose of  this margin is that in case of 
+            a network partition the singleton actors  in the non-surviving partitions must 
+            be stopped before corresponding actors are started somewhere else. 
+            This is especially important for persistent actors.
+            </param>
+            <param name="handOverRetryInterval">
+            When a node is becoming oldest it sends hand-over
+            request to previous oldest, that might be leaving the cluster. This is
+            retried with this interval until the previous oldest confirms that the hand
+            over has started or the previous oldest member is removed from the cluster
+            (+ <paramref name="removalMargin"/>).
+            </param>
+        </member>
+        <member name="T:Akka.Cluster.Tools.Singleton.ClusterSingletonProxy">
+            <summary>
+            <para>
+            The <see cref="T:Akka.Cluster.Tools.Singleton.ClusterSingletonProxy"/> works together with the <see cref="T:Akka.Cluster.Tools.Singleton.ClusterSingletonManager"/> to provide a
+            distributed proxy to the singleton actor.
+            </para>
+            <para>
+            The proxy can be started on every node where the singleton needs to be reached and used as if it were the singleton
+            itself. It will then act as a router to the currently running singleton instance. If the singleton is not currently
+            available, e.g., during hand off or startup, the proxy will buffer the messages sent to the singleton and then deliver
+            them when the singleton is finally available. The size of the buffer is configurable and it can be disabled by using
+            a buffer size of 0. When the buffer is full old messages will be dropped when new messages are sent via the proxy.
+            </para>
+            <para>
+            The proxy works by keeping track of the oldest cluster member. When a new oldest member is identified, e.g. because
+            the older one left the cluster, or at startup, the proxy will try to identify the singleton on the oldest member by
+            periodically sending an <see cref="T:Akka.Actor.Identify"/> message until the singleton responds with its <see cref="T:Akka.Actor.ActorIdentity"/>.
+            </para>
+            <remarks>
+            Note that this is a best effort implementation: messages can always be lost due to the distributed nature of the actors involved.
+            </remarks>
+            </summary>
+        </member>
+        <member name="M:Akka.Cluster.Tools.Singleton.ClusterSingletonProxy.DefaultConfig">
+            <summary>
+            Returns default HOCON configuration for the cluster singleton.
+            </summary>
+        </member>
+        <member name="M:Akka.Cluster.Tools.Singleton.ClusterSingletonProxy.Props(System.String,Akka.Cluster.Tools.Singleton.ClusterSingletonProxySettings)">
+            <summary>
+            Faactory method for <see cref="T:Akka.Cluster.Tools.Singleton.ClusterSingletonProxy"/> <see cref="T:Akka.Actor.Props"/>.
+            </summary>
+            <param name="singletonManagerPath">
+            The logical path of the singleton manager, e.g. `/user/singletonManager`, 
+            which ends with the name you defined in `actorOf` when creating the <see cref="T:Akka.Cluster.Tools.Singleton.ClusterSingletonManager"/>.
+            </param>
+            <param name="settings">Cluster singleton proxy settings.</param>
+        </member>
+        <member name="M:Akka.Cluster.Tools.Singleton.ClusterSingletonProxySettings.#ctor(System.String,System.String,System.TimeSpan,System.Int32)">
+            <summary>
+            Creates new instance of the <see cref="T:Akka.Cluster.Tools.Singleton.ClusterSingletonProxySettings"/>.
+            </summary>
+            <param name="singletonName">The actor name of the singleton actor that is started by the <see cref="T:Akka.Cluster.Tools.Singleton.ClusterSingletonManager"/>.</param>
+            <param name="role">The role of the cluster nodes where the singleton can be deployed. If None, then any node will do.</param>
+            <param name="singletonIdentificationInterval">Interval at which the proxy will try to resolve the singleton instance.</param>
+            <param name="bufferSize">
+            If the location of the singleton is unknown the proxy will buffer this number of messages and deliver them
+            when the singleton is identified.When the buffer is full old messages will be droppedwhen new messages 
+            are sent viea the proxy.Use 0 to disable buffering, i.e.messages will be dropped immediately if the location 
+            of the singleton is unknown.
+            </param>
+        </member>
+        <member name="T:Akka.Cluster.Tools.Singleton.OldestChangedBuffer">
+            <summary>
+            Notifications of member events that track oldest member is tunneled
+            via this actor (child of ClusterSingletonManager) to be able to deliver
+            one change at a time. Avoiding simultaneous changes simplifies
+            the process in ClusterSingletonManager. ClusterSingletonManager requests
+            next event with <see cref="T:Akka.Cluster.Tools.Singleton.OldestChangedBuffer.GetNext"/> when it is ready for it. Only one outstanding
+            <see cref="T:Akka.Cluster.Tools.Singleton.OldestChangedBuffer.GetNext"/> request is allowed. Incoming events are buffered and delivered
+            upon <see cref="T:Akka.Cluster.Tools.Singleton.OldestChangedBuffer.GetNext"/> request.
+            </summary>
+        </member>
+    </members>
+</doc>

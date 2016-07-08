@@ -13,9 +13,7 @@ namespace AkkaPlayground.Core.Entities
 
         public string Login { get; set; }
 
-        public string Name { get; set; }
-
-        public string Email { get; set; }
+        public string UserName { get; set; }
 
         public List<Guid> SubscribedToList { get; set; }
 
@@ -23,12 +21,11 @@ namespace AkkaPlayground.Core.Entities
 
         public List<UserChatEntity> Chats { get; set; }
 
-        public UserEntity(Guid id, string login, string name, string email)
+        public UserEntity(Guid id, string login, string userName)
         {
             Id = id;
             Login = login;
-            Name = name;
-            Email = email;
+            UserName = userName;
             SubscribedToList = new List<Guid>();
             FollowersList = new List<Guid>();
             Chats = new List<UserChatEntity>();

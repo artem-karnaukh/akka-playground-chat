@@ -2,8 +2,10 @@
     <ion-content class="chat">
         <div class="message-list">
             <div ng-repeat="message in messages" class="message-wrapper">
-                <div class="message" ng-class="message.Author === currentUserId ? 'message-mine' : 'message-other'">
+                <div class="message" ng-class="message.UserId === currentUserId ? 'message-mine' : 'message-other'">
+                    <div class="author"> {{ message.UserName }}: </div>
                     <div class="message-text">{{message.Message}}</div>
+                    <div class="message-timestamp">{{message.Date}}</div>
                 </div>
             </div>
         </div>

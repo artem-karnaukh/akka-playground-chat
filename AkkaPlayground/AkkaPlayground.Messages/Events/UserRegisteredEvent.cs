@@ -8,15 +8,15 @@ namespace AkkaPlayground.Messages.Events
 {
     public class UserRegisteredEvent 
     {
-        public readonly Guid Id;
-        public readonly string Login;
-        public readonly string Email;
+        public Guid Id { get; private set; }
+        public string Login { get; private set; }
+        public string UserName { get; private set; }
 
-        public UserRegisteredEvent(Guid id, string login, string email)
+        public UserRegisteredEvent(Guid id, string login, string userName)
         {
             Id = id;
             Login = login;
-            Email = email;
+            UserName = userName;
         }
 
     }

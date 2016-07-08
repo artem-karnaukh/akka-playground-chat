@@ -1,0 +1,424 @@
+<?xml version="1.0"?>
+<doc>
+    <assembly>
+        <name>Akka.Persistence.Sql.Common</name>
+    </assembly>
+    <members>
+        <member name="T:Akka.Persistence.Sql.Common.Journal.ITimestampProvider">
+            <summary>
+            Interface responsible for generation of timestamps for persisted messages in SQL-based journals.
+            </summary>
+        </member>
+        <member name="M:Akka.Persistence.Sql.Common.Journal.ITimestampProvider.GenerateTimestamp(Akka.Persistence.IPersistentRepresentation)">
+            <summary>
+            Generates timestamp for provided <see cref="T:Akka.Persistence.IPersistentRepresentation"/> message.
+            </summary>
+        </member>
+        <member name="T:Akka.Persistence.Sql.Common.Journal.DefaultTimestampProvider">
+            <summary>
+            Default implementation of timestamp provider. Returns <see cref="P:System.DateTime.UtcNow"/> for any message.
+            </summary>
+        </member>
+        <member name="T:Akka.Persistence.Sql.Common.Journal.JournalEntry">
+            <summary>
+            Class used for storing intermediate result of the <see cref="T:Akka.Persistence.IPersistentRepresentation"/>
+            in form which is ready to be stored directly in the SQL table.
+            </summary>
+        </member>
+        <member name="T:Akka.Persistence.Sql.Common.Journal.JournalDbEngine">
+            <summary>
+            Class used to abstract SQL persistence capabilities for concrete implementation of actor journal.
+            </summary>
+        </member>
+        <member name="F:Akka.Persistence.Sql.Common.Journal.JournalDbEngine.Settings">
+            <summary>
+            Settings applied to journal mapped from HOCON config file.
+            </summary>
+        </member>
+        <member name="F:Akka.Persistence.Sql.Common.Journal.JournalDbEngine.TimestampProvider">
+            <summary>
+            Timestamp provider used for generation of timestamps for incoming persistent messages.
+            </summary>
+        </member>
+        <member name="P:Akka.Persistence.Sql.Common.Journal.JournalDbEngine.JournalConfigPath">
+            <summary>
+            Returns a HOCON config path to associated journal.
+            </summary>
+        </member>
+        <member name="P:Akka.Persistence.Sql.Common.Journal.JournalDbEngine.Log">
+            <summary>
+            System logger.
+            </summary>
+        </member>
+        <member name="M:Akka.Persistence.Sql.Common.Journal.JournalDbEngine.CreateDbConnection(System.String)">
+            <summary>
+            Initializes a database connection.
+            </summary>
+        </member>
+        <member name="M:Akka.Persistence.Sql.Common.Journal.JournalDbEngine.CopyParamsToCommand(System.Data.Common.DbCommand,Akka.Persistence.Sql.Common.Journal.JournalEntry)">
+            <summary>
+            Copies values from entities to database command.
+            </summary>
+            <param name="sqlCommand"></param>
+            <param name="entry"></param>
+        </member>
+        <member name="P:Akka.Persistence.Sql.Common.Journal.JournalDbEngine.QueryBuilder">
+            <summary>
+            Used for generating SQL commands for journal-related database operations.
+            </summary>
+        </member>
+        <member name="P:Akka.Persistence.Sql.Common.Journal.JournalDbEngine.QueryMapper">
+            <summary>
+            Used for mapping results returned from database into <see cref="T:Akka.Persistence.IPersistentRepresentation"/> objects.
+            </summary>
+        </member>
+        <member name="M:Akka.Persistence.Sql.Common.Journal.JournalDbEngine.Close">
+            <summary>
+            Closes database connection if exists.
+            </summary>
+        </member>
+        <member name="M:Akka.Persistence.Sql.Common.Journal.JournalDbEngine.ReadEvents(System.Object,System.Collections.Generic.IEnumerable{Akka.Persistence.Sql.Common.Queries.IHint},Akka.Actor.IActorRef,System.Action{Akka.Persistence.IPersistentRepresentation})">
+            <summary>
+            Performs
+            </summary>
+        </member>
+        <member name="M:Akka.Persistence.Sql.Common.Journal.JournalDbEngine.ReplayMessagesAsync(System.String,System.Int64,System.Int64,System.Int64,Akka.Actor.IActorRef,System.Action{Akka.Persistence.IPersistentRepresentation})">
+            <summary>
+            Asynchronously replays all requested messages related to provided <paramref name="persistenceId"/>,
+            using provided sequence ranges (inclusive) with <paramref name="max"/> number of messages replayed
+            (counting from the beginning). Replay callback is invoked for each replayed message.
+            </summary>
+            <param name="persistenceId">Identifier of persistent messages stream to be replayed.</param>
+            <param name="fromSequenceNr">Lower inclusive sequence number bound. Unbound by default.</param>
+            <param name="toSequenceNr">Upper inclusive sequence number bound. Unbound by default.</param>
+            <param name="max">Maximum number of messages to be replayed. Unbound by default.</param>
+            <param name="recoveryCallback">Action invoked for each replayed message.</param>
+        </member>
+        <member name="M:Akka.Persistence.Sql.Common.Journal.JournalDbEngine.ReadHighestSequenceNrAsync(System.String,System.Int64)">
+            <summary>
+            Asynchronously reads a highest sequence number of the event stream related with provided <paramref name="persistenceId"/>.
+            </summary>
+        </member>
+        <member name="M:Akka.Persistence.Sql.Common.Journal.JournalDbEngine.WriteMessagesAsync(System.Collections.Generic.IEnumerable{Akka.Persistence.AtomicWrite})">
+            <summary>
+            Asynchronously writes all persistent <paramref name="messages"/> inside SQL Server database.
+            
+            Specific table used for message persistence may be defined through configuration within 
+            'akka.persistence.journal.sql-server' scope with 'schema-name' and 'table-name' keys.
+            </summary>
+        </member>
+        <member name="M:Akka.Persistence.Sql.Common.Journal.JournalDbEngine.DeleteMessagesToAsync(System.String,System.Int64)">
+            <summary>
+            Asynchronously deletes all persisted messages identified by provided <paramref name="persistenceId"/>
+            up to provided message sequence number (inclusive).
+            </summary>
+        </member>
+        <member name="M:Akka.Persistence.Sql.Common.Journal.JournalDbEngine.GetConnectionString">
+            <summary>
+            Returns connection string from either HOCON configuration or &lt;connectionStrings&gt; section of app.config.
+            </summary>
+        </member>
+        <member name="T:Akka.Persistence.Sql.Common.Journal.IJournalQueryBuilder">
+            <summary>
+            SQL query builder used for generating queries required to perform journal's tasks.
+            </summary>
+        </member>
+        <member name="M:Akka.Persistence.Sql.Common.Journal.IJournalQueryBuilder.SelectEvents(System.Collections.Generic.IEnumerable{Akka.Persistence.Sql.Common.Queries.IHint})">
+            <summary>
+            Returns query which should return events filtered accordingly to provided set of <paramref name="hints"/>.
+            </summary>
+        </member>
+        <member name="M:Akka.Persistence.Sql.Common.Journal.IJournalQueryBuilder.SelectMessages(System.String,System.Int64,System.Int64,System.Int64)">
+            <summary>
+            Returns query which should return a frame of messages filtered accordingly to provided parameters.
+            </summary>
+        </member>
+        <member name="M:Akka.Persistence.Sql.Common.Journal.IJournalQueryBuilder.SelectHighestSequenceNr(System.String)">
+            <summary>
+            Returns query returning single number considered as the highest sequence number in current journal.
+            </summary>
+        </member>
+        <member name="M:Akka.Persistence.Sql.Common.Journal.IJournalQueryBuilder.InsertBatchMessages(Akka.Persistence.IPersistentRepresentation[])">
+            <summary>
+            Returns a non-query command used to insert collection of <paramref name="messages"/> in journal table.
+            </summary>
+        </member>
+        <member name="M:Akka.Persistence.Sql.Common.Journal.IJournalQueryBuilder.DeleteBatchMessages(System.String,System.Int64)">
+            <summary>
+            Returns DELETE statement used to delete rows permanently.
+            </summary>
+        </member>
+        <member name="T:Akka.Persistence.Sql.Common.Journal.IJournalQueryMapper">
+            <summary>
+            Mapper used for generating persistent representations based on SQL query results.
+            </summary>
+        </member>
+        <member name="M:Akka.Persistence.Sql.Common.Journal.IJournalQueryMapper.Map(System.Data.Common.DbDataReader,Akka.Actor.IActorRef)">
+            <summary>
+            Takes a current row from the SQL data reader and produces a persistent representation object in result.
+            It's not supposed to move reader's cursor in any way.
+            </summary>
+        </member>
+        <member name="T:Akka.Persistence.Sql.Common.Journal.DefaultJournalQueryMapper">
+            <summary>
+            Default implementation of <see cref="T:Akka.Persistence.Sql.Common.Journal.IJournalQueryMapper"/> used for mapping data 
+            returned from ADO.NET data readers back to <see cref="T:Akka.Persistence.IPersistentRepresentation"/> messages.
+            </summary>
+        </member>
+        <member name="M:Akka.Persistence.Sql.Common.Queries.Hints.Manifest(System.String)">
+            <summary>
+            Returns a hint that expects a reply with events with matching manifest.
+            </summary>
+        </member>
+        <member name="M:Akka.Persistence.Sql.Common.Queries.Hints.PersistenceIds(System.Collections.Generic.IEnumerable{System.String})">
+            <summary>
+            Returns a hint that expects a reply with events from provided set of persistence ids.
+            </summary>
+        </member>
+        <member name="M:Akka.Persistence.Sql.Common.Queries.Hints.TimestampBefore(System.DateTime)">
+            <summary>
+            Returns a hint that expects a reply with events, that have timestamp value before provided date.
+            </summary>
+        </member>
+        <member name="M:Akka.Persistence.Sql.Common.Queries.Hints.TimestampAfter(System.DateTime)">
+            <summary>
+            Returns a hint that expects a reply with events, that have timestamp value after or equal provided date.
+            </summary>
+        </member>
+        <member name="M:Akka.Persistence.Sql.Common.Queries.Hints.TimestampBetween(System.DateTime,System.DateTime)">
+            <summary>
+            Returns a hint that expects a reply with events, that have timestamp from between provided range of values (left side inclusive).
+            </summary>
+        </member>
+        <member name="T:Akka.Persistence.Sql.Common.Queries.WithManifest">
+            <summary>
+            Hint for the SQL journal used to filter journal entries returned in the response based on the manifest.
+            </summary>
+        </member>
+        <member name="T:Akka.Persistence.Sql.Common.Queries.PersistenceIdRange">
+            <summary>
+            Hint for the SQL journal used to filter journal entries returned in the response based on set of perisistence ids provided.
+            </summary>
+        </member>
+        <member name="T:Akka.Persistence.Sql.Common.Queries.TimestampRange">
+            <summary>
+            Hint for the SQL journal used to filter journal entries returned in the response based on their timestamp range.
+            Desired behavior of timestamp range is &lt;from, to) - left side inclusive, right side exclusive.
+            Timestamp is generated by <see cref="!:JournalDbEngine.GenerateTimestamp"/> method, which may be overloaded.
+            </summary>
+        </member>
+        <member name="T:Akka.Persistence.Sql.Common.Queries.Query">
+            <summary>
+            Message send to particular SQL-based journal <see cref="T:Akka.Actor.IActorRef"/>. It may be parametrized 
+            using set of hints. SQL-based journal will respond with collection of <see cref="T:Akka.Persistence.Sql.Common.Queries.QueryResponse"/> 
+            messages followed by <see cref="T:Akka.Persistence.Sql.Common.Queries.QuerySuccess"/> when  request succeed or the 
+            <see cref="T:Akka.Persistence.Sql.Common.Queries.QueryFailure"/> message when request has failed for some reason.
+            
+            Since SQL journals can store events in linearized fashion, they are able to provide deterministic 
+            set of events not based on any partition key. Therefore query request don't need to contain 
+            partition id of the persistent actor.
+            </summary>
+        </member>
+        <member name="T:Akka.Persistence.Sql.Common.Queries.QueryResponse">
+            <summary>
+            Message send back from SQL-based journal to <see cref="T:Akka.Persistence.Sql.Common.Queries.Query"/> sender, 
+            when the query execution has been completed and result is returned.
+            </summary>
+        </member>
+        <member name="T:Akka.Persistence.Sql.Common.Queries.QuerySuccess">
+            <summary>
+            Message send back from SQL-based journal, when <see cref="T:Akka.Persistence.Sql.Common.Queries.Query"/> has been successfully responded.
+            </summary>
+        </member>
+        <member name="T:Akka.Persistence.Sql.Common.Queries.QueryFailure">
+            <summary>
+            Message send back from SQL-based journal to <see cref="T:Akka.Persistence.Sql.Common.Queries.Query"/> sender, when the query execution has failed.
+            </summary>
+        </member>
+        <member name="F:Akka.Persistence.Sql.Common.Queries.QueryFailure.QueryId">
+            <summary>
+            Identifier of the correlated <see cref="T:Akka.Persistence.Sql.Common.Queries.Query"/>.
+            </summary>
+        </member>
+        <member name="T:Akka.Persistence.Sql.Common.JournalSettings">
+            <summary>
+            Configuration settings representation targeting Sql Server journal actor.
+            </summary>
+        </member>
+        <member name="P:Akka.Persistence.Sql.Common.JournalSettings.ConnectionString">
+            <summary>
+            Connection string used to access a persistent SQL Server instance.
+            </summary>
+        </member>
+        <member name="P:Akka.Persistence.Sql.Common.JournalSettings.ConnectionStringName">
+            <summary>
+            Name of the connection string stored in &lt;connectionStrings&gt; section of *.config file.
+            </summary>
+        </member>
+        <member name="P:Akka.Persistence.Sql.Common.JournalSettings.ConnectionTimeout">
+            <summary>
+            Connection timeout for SQL Server related operations.
+            </summary>
+        </member>
+        <member name="P:Akka.Persistence.Sql.Common.JournalSettings.SchemaName">
+            <summary>
+            Schema name, where table corresponding to event journal is placed.
+            </summary>
+        </member>
+        <member name="P:Akka.Persistence.Sql.Common.JournalSettings.TableName">
+            <summary>
+            Name of the table corresponding to event journal.
+            </summary>
+        </member>
+        <member name="P:Akka.Persistence.Sql.Common.JournalSettings.TimestampProvider">
+            <summary>
+            Fully qualified type name for <see cref="T:Akka.Persistence.Sql.Common.Journal.ITimestampProvider"/> used to generate journal timestamps.
+            </summary>
+        </member>
+        <member name="T:Akka.Persistence.Sql.Common.SnapshotStoreSettings">
+            <summary>
+            Configuration settings representation targeting Sql Server snapshot store actor.
+            </summary>
+        </member>
+        <member name="P:Akka.Persistence.Sql.Common.SnapshotStoreSettings.ConnectionString">
+            <summary>
+            Connection string used to access a persistent SQL Server instance.
+            </summary>
+        </member>
+        <member name="P:Akka.Persistence.Sql.Common.SnapshotStoreSettings.ConnectionStringName">
+            <summary>
+            Name of the connection string stored in &lt;connectionStrings&gt; section of *.config file.
+            </summary>
+        </member>
+        <member name="P:Akka.Persistence.Sql.Common.SnapshotStoreSettings.ConnectionTimeout">
+            <summary>
+            Connection timeout for SQL Server related operations.
+            </summary>
+        </member>
+        <member name="P:Akka.Persistence.Sql.Common.SnapshotStoreSettings.SchemaName">
+            <summary>
+            Schema name, where table corresponding to snapshot store is placed.
+            </summary>
+        </member>
+        <member name="P:Akka.Persistence.Sql.Common.SnapshotStoreSettings.TableName">
+            <summary>
+            Name of the table corresponding to snapshot store.
+            </summary>
+        </member>
+        <member name="T:Akka.Persistence.Sql.Common.Snapshot.SqlSnapshotStore">
+            <summary>
+            Abstract snapshot store implementation, customized to work with SQL-based persistence providers.
+            </summary>
+        </member>
+        <member name="F:Akka.Persistence.Sql.Common.Snapshot.SqlSnapshotStore._pendingRequestsCancellation">
+            <summary>
+            List of cancellation tokens for all pending asynchronous database operations.
+            </summary>
+        </member>
+        <member name="M:Akka.Persistence.Sql.Common.Snapshot.SqlSnapshotStore.CreateDbConnection(System.String)">
+            <summary>
+            Returns a new instance of database connection.
+            </summary>
+        </member>
+        <member name="M:Akka.Persistence.Sql.Common.Snapshot.SqlSnapshotStore.CreateDbConnection">
+            <summary>
+            Returns a new instance of database connection.
+            </summary>
+        </member>
+        <member name="P:Akka.Persistence.Sql.Common.Snapshot.SqlSnapshotStore.Settings">
+            <summary>
+            Gets settings for the current snapshot store.
+            </summary>
+        </member>
+        <member name="P:Akka.Persistence.Sql.Common.Snapshot.SqlSnapshotStore.QueryBuilder">
+            <summary>
+            Query builder used to convert snapshot store related operations into corresponding SQL queries.
+            </summary>
+        </member>
+        <member name="P:Akka.Persistence.Sql.Common.Snapshot.SqlSnapshotStore.QueryMapper">
+            <summary>
+            Query mapper used to map SQL query results into snapshots.
+            </summary>
+        </member>
+        <member name="M:Akka.Persistence.Sql.Common.Snapshot.SqlSnapshotStore.LoadAsync(System.String,Akka.Persistence.SnapshotSelectionCriteria)">
+            <summary>
+            Asynchronously loads snapshot with the highest sequence number for a persistent actor/view matching specified criteria.
+            </summary>
+        </member>
+        <member name="M:Akka.Persistence.Sql.Common.Snapshot.SqlSnapshotStore.SaveAsync(Akka.Persistence.SnapshotMetadata,System.Object)">
+            <summary>
+            Asynchronously stores a snapshot with metadata as record in SQL table.
+            </summary>
+        </member>
+        <member name="T:Akka.Persistence.Sql.Common.Snapshot.SnapshotEntry">
+            <summary>
+            Flattened and serialized snapshot object used as intermediate representation 
+            before saving snapshot with metadata inside SQL Server database.
+            </summary>
+        </member>
+        <member name="F:Akka.Persistence.Sql.Common.Snapshot.SnapshotEntry.PersistenceId">
+            <summary>
+            Persistence identifier of persistent actor, current snapshot relates to.
+            </summary>
+        </member>
+        <member name="F:Akka.Persistence.Sql.Common.Snapshot.SnapshotEntry.SequenceNr">
+            <summary>
+            Sequence number used to identify snapshot in it's persistent actor scope.
+            </summary>
+        </member>
+        <member name="F:Akka.Persistence.Sql.Common.Snapshot.SnapshotEntry.Timestamp">
+            <summary>
+            Timestamp used to specify date, when the snapshot has been made.
+            </summary>
+        </member>
+        <member name="F:Akka.Persistence.Sql.Common.Snapshot.SnapshotEntry.SnapshotType">
+            <summary>
+            Stringified fully qualified CLR type name of the serialized object.
+            </summary>
+        </member>
+        <member name="F:Akka.Persistence.Sql.Common.Snapshot.SnapshotEntry.Snapshot">
+            <summary>
+            Serialized object data.
+            </summary>
+        </member>
+        <member name="T:Akka.Persistence.Sql.Common.Snapshot.ISnapshotQueryBuilder">
+            <summary>
+            Query builder used for prepare SQL commands used for snapshot store persistence operations.
+            </summary>
+        </member>
+        <member name="M:Akka.Persistence.Sql.Common.Snapshot.ISnapshotQueryBuilder.DeleteOne(System.String,System.Int64,System.DateTime)">
+            <summary>
+            Deletes a single snapshot identified by it's persistent actor's <paramref name="persistenceId"/>, 
+            <paramref name="sequenceNr"/> and <paramref name="timestamp"/>.
+            </summary>
+        </member>
+        <member name="M:Akka.Persistence.Sql.Common.Snapshot.ISnapshotQueryBuilder.DeleteMany(System.String,System.Int64,System.DateTime)">
+            <summary>
+            Deletes all snapshot matching persistent actor's <paramref name="persistenceId"/> as well as 
+            upper (inclusive) bounds of the both <paramref name="maxSequenceNr"/> and <paramref name="maxTimestamp"/>.
+            </summary>
+        </member>
+        <member name="M:Akka.Persistence.Sql.Common.Snapshot.ISnapshotQueryBuilder.InsertSnapshot(Akka.Persistence.Sql.Common.Snapshot.SnapshotEntry)">
+            <summary>
+            Inserts a single snapshot represented by provided <see cref="T:Akka.Persistence.Sql.Common.Snapshot.SnapshotEntry"/> instance.
+            </summary>
+        </member>
+        <member name="M:Akka.Persistence.Sql.Common.Snapshot.ISnapshotQueryBuilder.SelectSnapshot(System.String,System.Int64,System.DateTime)">
+            <summary>
+            Selects a single snapshot identified by persistent actor's <paramref name="persistenceId"/>,
+            matching upper (inclusive) bounds of both <paramref name="maxSequenceNr"/> and <paramref name="maxTimestamp"/>.
+            In case, when more than one snapshot matches specified criteria, one with the highest sequence number will be selected.
+            </summary>
+        </member>
+        <member name="T:Akka.Persistence.Sql.Common.Snapshot.ISnapshotQueryMapper">
+            <summary>
+            Mapper used to map results of snapshot SELECT queries into valid snapshot objects.
+            </summary>
+        </member>
+        <member name="M:Akka.Persistence.Sql.Common.Snapshot.ISnapshotQueryMapper.Map(System.Data.Common.DbDataReader)">
+            <summary>
+            Map data found under current cursor pointed by SQL data reader into <see cref="T:Akka.Persistence.SelectedSnapshot"/> instance.
+            </summary>
+        </member>
+    </members>
+</doc>

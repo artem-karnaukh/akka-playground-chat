@@ -10,13 +10,19 @@ using AkkaPlayground.Messages.Messages;
 using System.Linq;
 using Akka.Cluster.Sharding;
 using AkkaPlayground.Messages;
+using AkkaPlayground.Core.Actors.Views;
+using AkkaPlayground.Projections;
+using AkkaPlayground.Messages.Entities;
 
 namespace AkkaPlayground.Core.Actors
 {
     public class Chat : ReceivePersistentActor
     {
         private ChatEntity State;
-        private IActorRef _region;
+        private IActorRef _userRegion;
+
+        private IActorRef _chatView;
+        
 
         public Chat()
         {
@@ -24,10 +30,14 @@ namespace AkkaPlayground.Core.Actors
             RecoverAny(UpdateState);
 
             ClusterSharding clusterSharding = ClusterSharding.Get(Context.System);
-            _region = clusterSharding.ShardRegion(typeof(User).Name);
-            if (_region == null)
+            _userRegion = clusterSharding.ShardRegion(typeof(User).Name);
+
+            _chatView = Context.ActorOf(Props.Create(() => new ChatView()));
+            
+
+            if (_userRegion == null)
             {
-                _region = clusterSharding.Start(
+                _userRegion = clusterSharding.Start(
                                 typeName: typeof(User).Name,
                                 entityProps: Props.Create<User>(),
                                 settings: ClusterShardingSettings.Create(Context.System),
@@ -42,7 +52,21 @@ namespace AkkaPlayground.Core.Actors
             message.Match()
                 .With<CreateChatCommand>(cmd =>
                 {
-                    var @event = new ChatCreatedEvent(cmd.Id, cmd.Participants);
+                    List<GetUserByIdResult> users = new List<GetUserByIdResult>();
+                    foreach(Guid cmdParticipantItem in cmd.Participants)
+                    {
+                        var envelop = new ShardEnvelope(cmdParticipantItem.ToString(), new GetUserById(cmdParticipantItem));
+                        GetUserByIdResult contactUser = _userRegion.Ask<GetUserByIdResult>(envelop).Result;
+                        users.Add(contactUser);
+                    }
+
+                    List<ChatParticipant> chatParticipants =
+                        users.Select(x => new ChatParticipant(x.Id,  x.Login, x.UserName)).ToList();
+
+                    ChatParticipant creator = users.Where(x => x.Id == cmd.Creator)
+                        .Select(x => new ChatParticipant(x.Id, x.Login, x.UserName)).FirstOrDefault();
+
+                    var @event = new ChatCreatedEvent(cmd.Id, creator, chatParticipants);
                     Persist<ChatCreatedEvent>(@event, UpdateState);
                 });
         }
@@ -50,9 +74,14 @@ namespace AkkaPlayground.Core.Actors
         private void Initialized(object message)
         {
             message.Match()
-                .With<AddMessageToChat>(mes =>
+                .With<AddMessageToChatCommand>(mes =>
                 {
-                    var messaegeAdded = new ChatMessageAddedEvent(mes.ChatId, mes.Author, mes.Message, DateTime.UtcNow);
+                    var envelop = new ShardEnvelope(mes.Author.ToString(), new GetUserById(mes.Author));
+                    GetUserByIdResult contactUser = _userRegion.Ask<GetUserByIdResult>(envelop).Result;
+
+                    Guid messageId = Guid.NewGuid();
+                    var messaegeAdded = new ChatMessageAddedEvent(messageId, mes.ChatId, 
+                          DateTime.UtcNow, mes.Message, new ChatParticipant(contactUser.Id, contactUser.Login, contactUser.UserName));
                     Persist(messaegeAdded, UpdateState);
                 });
 
@@ -63,41 +92,39 @@ namespace AkkaPlayground.Core.Actors
             e.Match().With<ChatCreatedEvent>(x =>
             {
                 State = new ChatEntity(x.Id);
-                State.Participants = x.Participants != null ? x.Participants: new List<Guid>();
+                State.Participants = x.Participants;
                 Context.Become(Initialized);
                 if (!IsRecovering)
                 {
-                    //PublishChatCreated(x);
+                    ResendToView(x);
+
+                    foreach(var user in x.Participants)
+                    {
+                        var envelop = new ShardEnvelope(user.Id.ToString(), x);
+                        _userRegion.Tell(envelop);
+                    }
                 }
-                Sender.Tell(x);
             });
 
             e.Match().With<ChatMessageAddedEvent>(x =>
             {
-                var chatLogEntity = new ChatLogEntity(x.Author, x.Message, DateTime.UtcNow);
+                var chatLogEntity = new ChatLogEntity(x.MessageId, x.Author, x.Message, DateTime.UtcNow);
                 State.Log.Add(chatLogEntity);
                 if (!IsRecovering)
                 {
-                    //PublishMessageAdded(x);
+                    ResendToView(x);
+                    foreach (var user in State.Participants)
+                    {
+                        var envelop = new ShardEnvelope(user.Id.ToString(), x);
+                        _userRegion.Tell(envelop);
+                    }
                 }
-                Sender.Tell(x);
             });
         }
 
-        //private void PublishChatCreated(ChatCreatedEvent chatCreatedEvent)
-        //{
-        //    foreach (var user in State.Participants)
-        //    {
-        //        Context.System.ActorSelection("/user/user-buckets/*/" + user.ToString()).Tell(chatCreatedEvent);
-        //    }
-        //}
-
-        //private void PublishMessageAdded(ChatMessageAddedEvent chatMessageAdded)
-        //{
-        //    foreach (var user in State.Participants)
-        //    {
-        //        Context.System.ActorSelection("/user/user-buckets/*/" + user.ToString()).Tell(chatMessageAdded);
-        //    }
-        //}
+        private void ResendToView(object x)
+        {
+            _chatView.Tell(x);
+        }
     }
 }

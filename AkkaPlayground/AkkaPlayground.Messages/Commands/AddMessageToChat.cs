@@ -6,7 +6,7 @@ using System.Threading.Tasks;
 
 namespace AkkaPlayground.Messages.Commands
 {
-    public class AddMessageToChat 
+    public class AddMessageToChatCommand 
     {
         public Guid ChatId { get; protected set; }
 
@@ -14,7 +14,7 @@ namespace AkkaPlayground.Messages.Commands
         
         public string Message { get; protected set; }
 
-        public AddMessageToChat(Guid chatId, Guid author, string message)
+        public AddMessageToChatCommand(Guid chatId, Guid author, string message)
         {
             ChatId = chatId;
             Author = author;

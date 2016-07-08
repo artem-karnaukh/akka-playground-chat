@@ -11,9 +11,9 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "AkkaPlaygrond.Web", "AkkaPl
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "AkkaPlayground.CoreService", "AkkaPlayground.CoreService\AkkaPlayground.CoreService.csproj", "{FF34243A-F24A-4624-925A-CFDB24BAE471}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "AkkaPlayground.Lighthouse", "AkkaNET.Sharding.Lighthouse\AkkaPlayground.Lighthouse.csproj", "{6B2E6871-3975-4611-8BB4-3EA7A432925C}"
-EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "AkkaPlayground.Projections", "AkkaPlayground.Projections\AkkaPlayground.Projections.csproj", "{52DE3CB3-2103-48FB-8075-27410F9A649E}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "AkkaPlayground.Lighthouse", "AkkaPlayground.Lighthouse\AkkaPlayground.Lighthouse.csproj", "{6B2E6871-3975-4611-8BB4-3EA7A432925C}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -37,14 +37,14 @@ Global
 		{FF34243A-F24A-4624-925A-CFDB24BAE471}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{FF34243A-F24A-4624-925A-CFDB24BAE471}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{FF34243A-F24A-4624-925A-CFDB24BAE471}.Release|Any CPU.Build.0 = Release|Any CPU
-		{6B2E6871-3975-4611-8BB4-3EA7A432925C}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
-		{6B2E6871-3975-4611-8BB4-3EA7A432925C}.Debug|Any CPU.Build.0 = Debug|Any CPU
-		{6B2E6871-3975-4611-8BB4-3EA7A432925C}.Release|Any CPU.ActiveCfg = Release|Any CPU
-		{6B2E6871-3975-4611-8BB4-3EA7A432925C}.Release|Any CPU.Build.0 = Release|Any CPU
 		{52DE3CB3-2103-48FB-8075-27410F9A649E}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
 		{52DE3CB3-2103-48FB-8075-27410F9A649E}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{52DE3CB3-2103-48FB-8075-27410F9A649E}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{52DE3CB3-2103-48FB-8075-27410F9A649E}.Release|Any CPU.Build.0 = Release|Any CPU
+		{6B2E6871-3975-4611-8BB4-3EA7A432925C}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{6B2E6871-3975-4611-8BB4-3EA7A432925C}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{6B2E6871-3975-4611-8BB4-3EA7A432925C}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{6B2E6871-3975-4611-8BB4-3EA7A432925C}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

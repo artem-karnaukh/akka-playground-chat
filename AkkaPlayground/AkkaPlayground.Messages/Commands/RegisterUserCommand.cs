@@ -9,15 +9,15 @@ namespace AkkaPlayground.Messages.Commands
 {
     public class RegisterUserCommand
     {
-        public readonly Guid Id;
-        public readonly string Login;
-        public readonly string Email;
+        public Guid Id { get; private set; }
+        public string Login { get; private set; }
+        public string UserName { get; private set; }
 
-        public RegisterUserCommand(Guid id, string login, string email)
+        public RegisterUserCommand(Guid id, string login, string userName)
         {
             Id = id;
             Login = login;
-            Email = email;
+            UserName = userName;
         }
     }
 }

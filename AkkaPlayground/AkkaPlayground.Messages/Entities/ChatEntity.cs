@@ -1,4 +1,5 @@
-﻿using System;
+﻿using AkkaPlayground.Messages.Entities;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
@@ -10,14 +11,14 @@ namespace AkkaPlayground.Core.Entities
     {
         public Guid Id { get; set; }
 
-        public List<Guid> Participants { get; set; }
+        public List<ChatParticipant> Participants { get; set; }
 
         public List<ChatLogEntity> Log { get; set; }
 
         public ChatEntity(Guid id)
         {
             Id = id;
-            Participants = new List<Guid>();
+            Participants = new List<ChatParticipant>();
             Log = new List<ChatLogEntity>();
         }
     }

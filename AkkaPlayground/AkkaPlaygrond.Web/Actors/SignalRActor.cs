@@ -19,13 +19,13 @@ namespace AkkaPlaygrond.Web.Actors
     {
         public IStash Stash { get;set; }
 
-        private IActorRef UserRegion { get; set; }
+        IActorRef UserRegion { get; set; }
 
-        private IActorRef ChatRegion { get; set; }
+        IActorRef ChatRegion { get; set; }
 
-        private Cluster Cluster { get; set; }
+        Cluster Cluster { get; set; }
 
-        private SignalREventPusher SignalrPusher { get; set; }
+        SignalREventPusher SignalrPusher { get; set; }
 
         public SignalRActor()
         {
@@ -37,7 +37,7 @@ namespace AkkaPlaygrond.Web.Actors
             HeatingUp();
         }
 
-        private void HeatingUp()
+        void HeatingUp()
         {
             Receive<object>(x =>
             {
@@ -67,7 +67,7 @@ namespace AkkaPlaygrond.Web.Actors
             });
         }
 
-        private void Ready()
+        void Ready()
         {
 
             Context.System.EventStream.Subscribe(Self, typeof(UserRegisteredEvent));
@@ -75,22 +75,21 @@ namespace AkkaPlaygrond.Web.Actors
 
             Receive<RegisterModel>(register =>
             {
-                var command = new RegisterUserCommand(register.UserId, register.UserName, register.Email);
+                var command = new RegisterUserCommand(register.UserId, register.Login, register.UserName);
                 var envelope = new ShardEnvelope(command.Id.ToString(), command);
                 UserRegion.Tell(envelope);
             });
 
             Receive<CreateChatModel>(x =>
             {
-                var command = new CreateChatCommand(x.ChatId, new List<Guid> { x.UserId, x.TargetUserId });
+                var command = new CreateChatCommand(x.ChatId, x.UserId, new List<Guid> { x.UserId, x.TargetUserId });
                 var envelope = new ShardEnvelope(command.Id.ToString(), command);
                 ChatRegion.Tell(envelope);
             });
-            
 
             Receive<UserRegisteredEvent>(evt =>
             {
-                SignalrPusher.PlayerJoined(evt.Id, evt.Login, evt.Email);
+                SignalrPusher.PlayerJoined(evt.Id, evt.Login, evt.UserName);
             });
 
             Receive<SubscribeToUserCommand>(mes =>
@@ -104,44 +103,19 @@ namespace AkkaPlaygrond.Web.Actors
                 SignalrPusher.UserAddedToContactList(mes.UserId, mes.ContactUserId, mes.ContactName);
             });
 
+            Receive<AddMessageToChatCommand>(cmd =>
+            {
+                var envelope = new ShardEnvelope(cmd.ChatId.ToString(), cmd);
+                ChatRegion.Tell(envelope);
+            });
 
-            //Receive<GetUserSubscribedToList>(mes =>
-            //{
-            //    _userBuckerRouter.Ask<SubscribedToListResult>(mes).PipeTo(Sender, Self);
-            //});
+            Receive<MarkChatMessagesReadCommand>(cmd =>
+            {
+                var envelope = new ShardEnvelope(cmd.UserId.ToString(), cmd);
+                UserRegion.Tell(envelope);
+            });
 
-            //Receive<GetPrivateChatWithUser>(mes =>
-            //{
-            //    _userBuckerRouter.Ask<UserPrivateChatReult>(mes).PipeTo(Sender, Self);
-            //});
-
-            //Receive<CreateChatCommand>(mes =>
-            //{
-            //    _chatBucketRouter.Ask<ChatCreatedEvent>(mes).PipeTo(Sender, Self);
-            //});
-
-            //Receive<AddMessageToChat>(cmd =>
-            //{
-            //    _chatBucketRouter.Tell(cmd);
-            //});
-
-            //Receive<GetChatHistory>(mes =>
-            //{
-            //    _chatBucketRouter.Ask<ChatHistoryResult>(mes).PipeTo(Sender, Self);
-            //});
-
-
-
-            //Receive<ChatMessageAddedEvent>(evt =>
-            //{
-            //    SignalREventPusher pusher = new SignalREventPusher();
-            //    pusher.ChatMessageAdded(evt);
-            //});
-
-            //Receive<GetUserChats>(mes =>
-            //{
-            //    _userBuckerRouter.Ask<UserChatsResult>(mes).PipeTo(Sender, Self);
-            //});
+            
 
         }
     }

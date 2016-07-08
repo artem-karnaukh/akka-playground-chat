@@ -41,7 +41,12 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
-    <Compile Include="UserContactsProjection.cs" />
+    <Compile Include="ChatMessageDto.cs" />
+    <Compile Include="ChatDto.cs" />
+    <Compile Include="ChatParticipantDto.cs" />
+    <Compile Include="UserBadgeEntryDto.cs" />
+    <Compile Include="UserChatDto.cs" />
+    <Compile Include="UserContactsDto.cs" />
     <Compile Include="UserProjection.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
   </ItemGroup>

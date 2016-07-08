@@ -7,10 +7,13 @@
         </div>
 
         <ion-list>
-            <ion-item class="item-button-right" ng-repeat="user in users">
-                {{user.Login}}
-                <button class="button button-calm" ng-click="add(user)" ng-if="!user.IsAlreadyAdded && !user.IsCurrentUser">
-                    <i class="icon ion-ios-plus-outline"></i>
+            <ion-item class="item-avatar item-button-right" ng-repeat="user in users">
+                <img ng-src="~/Images/user-default.svg">
+                <h2>{{user.UserName}}</h2>
+                <p>{{user.Login}}</p>
+
+                <button class="button button-add button-calm" ng-click="add(user)" ng-if="!user.IsAlreadyAdded && !user.IsCurrentUser">
+                    <i class="icon  ion-ios-plus-outline"></i>
                 </button>
             </ion-item>
         </ion-list>

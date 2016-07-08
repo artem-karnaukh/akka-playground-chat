@@ -1,4 +1,5 @@
-﻿using System;
+﻿using AkkaPlayground.Messages.Entities;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
@@ -8,20 +9,26 @@ namespace AkkaPlayground.Messages.Events
 {
     public class ChatMessageAddedEvent
     {
-        public Guid ChatId { get; set; }
+        public Guid ChatId { get; private set; }
 
-        public DateTime Date { get; set; }
+        public DateTime Date { get; private  set; }
 
-        public string Message { get; set; }
+        public Guid MessageId { get; private set; }
 
-        public Guid Author { get; set; }
+        public string Message { get; private set; }
 
-        public ChatMessageAddedEvent(Guid chatId, Guid author, string message, DateTime date)
+        public ChatParticipant Author { get; private set; }
+
+        public List<ChatParticipant> ChatParticipants { get; private set; }
+
+        public ChatMessageAddedEvent(Guid messageId, Guid chatId, DateTime date, string message, ChatParticipant author)
         {
+            MessageId = messageId;
             ChatId = chatId;
-            Author = author;
-            Message = message;
             Date = date;
+            Message = message;
+            Author = author;
         }
+
     }
 }

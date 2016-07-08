@@ -29,13 +29,13 @@ namespace AkkaPlayground.Core.Actors.Views
         {
             Receive<SubscribedToUserEvent>(x =>
               {
-                  UserContactsProjection userProjection = new UserContactsProjection()
+                  UserContactsDto userProjection = new UserContactsDto()
                   {
                       Id = Guid.NewGuid(),
                       UserId = x.UserId,
                       ContactUserId = x.ContactUserId,
                       ContactLogin = x.ContactLogin,
-                      ContactName = x.ContactName
+                      ContactUserName = x.ContactName
                   };
                   _mongoContext.UserContacts().InsertOne(userProjection);
               });

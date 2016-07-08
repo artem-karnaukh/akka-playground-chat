@@ -6,8 +6,6 @@
         }
     });
 
-
-
     var appStarted = false;
 
     $rootScope.$on('$locationChangeStart', function (event, toState, toParams, fromState, fromParams) {

@@ -9,7 +9,6 @@ using System.Threading.Tasks;
 using Akka;
 using Akka.Actor;
 using AkkaPlayground.Messages.Messages;
-using AkkaPlayground.Messages.ReadModels;
 using AkkaPlayground.Core.Data;
 using AkkaPlayground.Projections;
 
@@ -29,7 +28,7 @@ namespace AkkaPlayground.Core.Actors.Views
         {
             Receive<UserRegisteredEvent>(x =>
             {
-                UserProjection userProjection = new UserProjection() { Id = x.Id, Login = x.Login, Email = x.Email };
+                UserDto userProjection = new UserDto() { Id = x.Id, Login = x.Login, UserName = x.UserName };
                 _mongoContext.Users().InsertOne(userProjection);
             });
             Receive<UserNameEmailChangedEvent>(x =>
